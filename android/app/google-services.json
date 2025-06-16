@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "539224314762",
+    "project_id": "grad-project-dfbe2",
+    "storage_bucket": "grad-project-dfbe2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539224314762:android:22db211f1a841b3b5e6e73",
+        "android_client_info": {
+          "package_name": "com.example.grad_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "539224314762-re8agt9sl4h2gfuqeb01854aijn8ft15.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtaPEuAXvmU7K-VvfF9TSfLEwgYMpzh8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "539224314762-re8agt9sl4h2gfuqeb01854aijn8ft15.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
