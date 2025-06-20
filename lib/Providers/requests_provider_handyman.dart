@@ -7,14 +7,15 @@ import '../components/collections.dart';
 class RequestsProviderHandyman extends ChangeNotifier {
   List<QueryDocumentSnapshot> _requests = [];
   final List<QueryDocumentSnapshot> _approved = [];
-  final List<QueryDocumentSnapshot> _notApproved = [];
-  
+  final List<QueryDocumentSnapshot> _client_want = [];
+  final List<QueryDocumentSnapshot> _handyman_want = [];
   final List<QueryDocumentSnapshot> _done = [];
   bool _isLoading = true;
   DocumentSnapshot? handyman;
   List<QueryDocumentSnapshot> get requests => _requests;
   List<QueryDocumentSnapshot> get approved => _approved;
-  List<QueryDocumentSnapshot> get notApproved => _notApproved;
+  List<QueryDocumentSnapshot> get clientWant => _client_want;
+  List<QueryDocumentSnapshot> get HandymanWant => _handyman_want;
   List<QueryDocumentSnapshot> get done => _done;
   bool get isLoading => _isLoading;
 
@@ -48,7 +49,8 @@ class RequestsProviderHandyman extends ChangeNotifier {
 
         _requests = snapshot.docs;
         _approved.clear();
-        _notApproved.clear();
+        _client_want.clear();
+        _handyman_want.clear();
         _done.clear();
 
         final handymanUID = FirebaseAuth.instance.currentUser!.uid;
@@ -60,12 +62,14 @@ class RequestsProviderHandyman extends ChangeNotifier {
               handymanUID == data['assigned_handyman']) {
             _approved.add(doc);
           } else if (data[RequestFieldsName.status] ==
-                  RequestStatus.notApproved &&
-              ((data[RequestFieldsName.clientWantingHandymen] as List)
-                      .contains(handymanUID) ||
-                  (data[RequestFieldsName.handymenWantingRequest] as List)
-                      .contains(handymanUID))) {
-            _notApproved.add(doc);
+              RequestStatus.notApproved) {
+            if ((data[RequestFieldsName.clientWantingHandymen] as List)
+                .contains(handymanUID)) {
+              _client_want.add(doc);
+            } else if ((data[RequestFieldsName.handymenWantingRequest] as List)
+                .contains(handymanUID)) {
+              _handyman_want.add(doc);
+            }
           } else if (data[RequestFieldsName.status] == RequestStatus.done &&
               handymanUID == data['assigned_handyman']) {
             _done.add(doc);

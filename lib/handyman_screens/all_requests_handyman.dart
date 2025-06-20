@@ -61,10 +61,21 @@ class AllRequestsHandyman extends StatelessWidget {
                                       data[RequestFieldsName.assignedHandymanName]);
                                 }).toList(),
                               ),
-                              _buildSectionTitle('Not Approved'),
+                              _buildSectionTitle('Not Approved (client want)'),
                               Column(
                                 children:
-                                    requestsProvider.notApproved.map((doc) {
+                                    requestsProvider.clientWant.map((doc) {
+                                  var data = doc.data() as Map<String, dynamic>;
+                                  return _buildRequestCard(
+                                      data[RequestFieldsName.category],
+                                      data[RequestFieldsName.request],
+                                      data[RequestFieldsName.assignedHandymanName]);
+                                }).toList(),
+                              ),
+                              _buildSectionTitle('Not Approved (handyman want)'),
+                              Column(
+                                children:
+                                    requestsProvider.HandymanWant.map((doc) {
                                   var data = doc.data() as Map<String, dynamic>;
                                   return _buildRequestCard(
                                       data[RequestFieldsName.category],
