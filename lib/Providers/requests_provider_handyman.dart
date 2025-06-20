@@ -8,6 +8,7 @@ class RequestsProviderHandyman extends ChangeNotifier {
   List<QueryDocumentSnapshot> _requests = [];
   final List<QueryDocumentSnapshot> _approved = [];
   final List<QueryDocumentSnapshot> _notApproved = [];
+  
   final List<QueryDocumentSnapshot> _done = [];
   bool _isLoading = true;
   DocumentSnapshot? handyman;

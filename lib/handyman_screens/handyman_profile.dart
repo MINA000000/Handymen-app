@@ -82,7 +82,7 @@ class _HandymanProfileState extends State<HandymanProfile> {
                               radius: 50,
                               backgroundImage:
                               // NetworkImage("https://placehold.co/100x100"),
-                              NetworkImage('assets/avatar.png')
+                              AssetImage('assets/avatar.png')
                           ),
                           const SizedBox(width: 10),
                           // Column(
