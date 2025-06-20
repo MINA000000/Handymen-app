@@ -218,14 +218,45 @@ class FirebaseMethods {
   }
 
   static Future<void> addToArrayRequestsCollection(
-      String docId, String handymanId, String wanting) async {
+    String docId,
+    String handymanId,
+    String wanting,
+  ) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentReference docRef =
         firestore.collection(CollectionsNames.requestInformation).doc(docId);
-
+     
     await docRef.update({
-      wanting: FieldValue.arrayUnion([handymanId])
+        wanting: FieldValue.arrayUnion([handymanId]),
     });
+
+    DocumentSnapshot docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) return;
+
+    final data = docSnapshot.data() as Map<String, dynamic>;
+
+    final List<dynamic> clientWantingList =
+        List.from(data['client_wanting_handymen'] ?? []);
+    final List<dynamic> handymenWantingList =
+        List.from(data['handymen_wanting_request'] ?? []);
+
+    final bool existsInBoth = clientWantingList.contains(handymanId) &&
+        handymenWantingList.contains(handymanId);
+
+    if (existsInBoth) {
+      await docRef.update({
+        'client_wanting_handymen': FieldValue.arrayRemove([handymanId]),
+        'handymen_wanting_request': FieldValue.arrayRemove([handymanId]),
+        'assigned_handyman': handymanId,
+        'status':'approved'
+      });
+    } else {
+      // If not already in the list, add to the specified list (e.g., handymen_wanting_request)
+      await docRef.update({
+        wanting: FieldValue.arrayUnion([handymanId]),
+      });
+    }
   }
 }
 

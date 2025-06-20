@@ -18,7 +18,6 @@ class RequestsProviderHandyman extends ChangeNotifier {
   List<QueryDocumentSnapshot> get HandymanWant => _handyman_want;
   List<QueryDocumentSnapshot> get done => _done;
   bool get isLoading => _isLoading;
-
   RequestsProviderHandyman() {
     _fetchRequests();
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grad_project/Providers/requests_provider_handyman.dart';
+import 'package:grad_project/handyman_screens/approved_request_handyman.dart';
 import 'package:provider/provider.dart';
 
 import '../components/collections.dart';
@@ -55,10 +56,13 @@ class AllRequestsHandyman extends StatelessWidget {
                               Column(
                                 children: requestsProvider.approved.map((doc) {
                                   var data = doc.data() as Map<String, dynamic>;
-                                  return _buildRequestCard(
-                                      data[RequestFieldsName.category],
-                                      data[RequestFieldsName.request],
-                                      data[RequestFieldsName.assignedHandymanName]);
+                                  return GestureDetector(
+                                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ApprovedRequestHandyman(request: doc),)),
+                                    child: _buildRequestCard(
+                                        data[RequestFieldsName.category],
+                                        data[RequestFieldsName.request],
+                                        data[RequestFieldsName.assignedHandymanName]),
+                                  );
                                 }).toList(),
                               ),
                               _buildSectionTitle('Not Approved (client want)'),

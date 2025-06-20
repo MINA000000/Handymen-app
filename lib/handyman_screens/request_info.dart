@@ -34,7 +34,7 @@ class _RequestInfoState extends State<RequestInfo> {
     Future.delayed(Duration.zero, () {
       // Print all document IDs in the HandymanWant list
       // print("request id is ${widget.request.id}");
-      // for (var doc in requestsProvider.HandymanWant) {
+      // for (var doc in requestsProvider.HandymanWant){
       //   print("📄 HandymanWant doc.id: ${doc.id}");
       // }
       bool exists = false;
@@ -44,7 +44,10 @@ class _RequestInfoState extends State<RequestInfo> {
           .contains(FirebaseAuth.instance.currentUser!.uid)) {
         exists = true;
       }
-
+      if (data[RequestFieldsName.assignedHandyman] ==
+          FirebaseAuth.instance.currentUser!.uid) {
+        exists = true;
+      }
       setState(() {
         sendCorrectly = exists;
       });
