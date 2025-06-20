@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grad_project/Providers/requests_provider_handyman.dart';
 import 'package:grad_project/components/collections.dart';
 import 'package:grad_project/components/firebase_methods.dart';
 import 'package:grad_project/components/image_viewer_screen.dart';
+import 'package:provider/provider.dart';
 
 // @immutable
 class RequestInfo extends StatefulWidget {
@@ -18,6 +20,37 @@ class RequestInfo extends StatefulWidget {
 class _RequestInfoState extends State<RequestInfo> {
   bool buttonLoading = false;
   bool sendCorrectly = false;
+  @override
+  @override
+  void initState() {
+    super.initState();
+
+    final requestsProvider = Provider.of<RequestsProviderHandyman>(
+      context,
+      listen: false,
+    );
+
+    // Delay to wait for Firestore snapshot to arrive
+    Future.delayed(Duration.zero, () {
+      // Print all document IDs in the HandymanWant list
+      // print("request id is ${widget.request.id}");
+      // for (var doc in requestsProvider.HandymanWant) {
+      //   print("📄 HandymanWant doc.id: ${doc.id}");
+      // }
+      bool exists = false;
+      var data = widget.request.data() as Map<String, dynamic>;
+
+      if ((data[RequestFieldsName.handymenWantingRequest] as List)
+          .contains(FirebaseAuth.instance.currentUser!.uid)) {
+        exists = true;
+      }
+
+      setState(() {
+        sendCorrectly = exists;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -129,7 +162,7 @@ class _RequestInfoState extends State<RequestInfo> {
                       const SizedBox(height: 20),
 
                       ElevatedButton(
-                          onPressed: buttonLoading||sendCorrectly
+                          onPressed: buttonLoading || sendCorrectly
                               ? null
                               : () async {
                                   setState(() {
@@ -158,9 +191,11 @@ class _RequestInfoState extends State<RequestInfo> {
                                   color: Colors.black,
                                 )
                               : Text(
-                                  sendCorrectly?'Done':'Accept',
+                                  sendCorrectly ? 'Done' : 'Ask?',
                                   style: TextStyle(
-                                      color: Colors.green,
+                                      color: sendCorrectly
+                                          ? Colors.green
+                                          : Colors.orange[700],
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 )),
