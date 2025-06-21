@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:grad_project/api_services/api_service_sentiment_analysis.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:grad_project/components/collections.dart';
 import 'package:grad_project/components/dialog_utils.dart';
 import 'package:grad_project/components/image_viewer_screen.dart';
 
 class DoneRequestClient extends StatefulWidget {
-  QueryDocumentSnapshot request;
-  DoneRequestClient({required this.request});
+  final QueryDocumentSnapshot request;
+
+  const DoneRequestClient({required this.request, super.key});
+
   @override
   _DoneRequestClientState createState() => _DoneRequestClientState();
 }
@@ -20,7 +22,7 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
   DocumentSnapshot? handyman;
   DocumentSnapshot? client;
   bool isCommentExist = false;
-  bool isloading = true;
+  bool isLoading = true;
   bool isButtonLoading = false;
   // ApiServiceSentimentAnalysis api = ApiServiceSentimentAnalysis();
 
@@ -35,37 +37,137 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
           .collection(CollectionsNames.clientsInformation)
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .get();
-      // print(handyman!.get(HandymanFieldsName.category));
       setState(() {
-        isloading = false;
+        isLoading = false;
       });
     } catch (e) {
-      print("Error here : $e");
+      print("Error fetching data: $e");
       setState(() {
-        isloading = false;
+        isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Failed to load data. Please try again.',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Nunito',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          backgroundColor: Color.fromRGBO(255, 61, 0, 0.7),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
   Future<void> _checkCommentExisting() async {
     try {
-      List<QueryDocumentSnapshot> queryDocumentSnapshot =
-          (await FirebaseFirestore.instance
-                  .collection(CollectionsNames.handymenInformation)
-                  .doc(widget.request[RequestFieldsName.assignedHandyman])
-                  .collection(CollectionsNames.comments)
-                  .where(CommentsFieldsName.clientId,
-                      isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                  .where(CommentsFieldsName.requestId,isEqualTo: widget.request.id)
-                  .get())
-              .docs;
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection(CollectionsNames.handymenInformation)
+          .doc(widget.request[RequestFieldsName.assignedHandyman])
+          .collection(CollectionsNames.comments)
+          .where(CommentsFieldsName.clientId, isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where(CommentsFieldsName.requestId, isEqualTo: widget.request.id)
+          .get();
 
-      if (queryDocumentSnapshot.isNotEmpty) isCommentExist = true;
-      // print(queryDocumentSnapshot.isEmpty);
-      // print(CommentsFieldsName.clientId+" "+"${FirebaseAuth.instance.currentUser!.uid}");
-      // print('hello worold here');
+      setState(() {
+        isCommentExist = querySnapshot.docs.isNotEmpty;
+      });
     } catch (e) {
-      print("Error here : $e");
+      print("Error checking comment: $e");
+    }
+  }
+
+  Future<void> _submitComment() async {
+    if (commentController.text.isEmpty) {
+      DialogUtils.buildShowDialog(
+        context,
+        title: 'Empty Comment',
+        content: 'Please write your comment first.',
+        titleColor: Color.fromRGBO(255, 61, 0, 0.9),
+      );
+      setState(() {
+        isButtonLoading = false;
+      });
+      return;
+    }
+
+    try {
+      setState(() {
+        isButtonLoading = true;
+      });
+
+      final commentRef = FirebaseFirestore.instance
+          .collection(CollectionsNames.handymenInformation)
+          .doc(widget.request[RequestFieldsName.assignedHandyman])
+          .collection(CollectionsNames.comments)
+          .doc();
+
+      final handymanRef = FirebaseFirestore.instance
+          .collection(CollectionsNames.handymenInformation)
+          .doc(widget.request[RequestFieldsName.assignedHandyman]);
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        final handymanSnapshot = await transaction.get(handymanRef);
+
+        if (!handymanSnapshot.exists) {
+          throw Exception('Handyman document does not exist');
+        }
+
+        final handymanData = handymanSnapshot.data() as Map<String, dynamic>;
+        final currentCount = (handymanData['rating_count'] as num?)?.toInt() ?? 0;
+        final currentAverage = (handymanData['rating_average'] as num?)?.toDouble() ?? 0.0;
+
+        final newCount = currentCount + 1;
+        final newAverage = ((currentAverage * currentCount) + selectedRating) / newCount;
+
+        transaction.set(commentRef, {
+          CommentsFieldsName.clientName: client?.get(ClientFieldsName.fullName) ?? 'Unknown',
+          CommentsFieldsName.comment: commentController.text,
+          CommentsFieldsName.rate: selectedRating,
+          CommentsFieldsName.time: DateTime.now(),
+          CommentsFieldsName.clientId: FirebaseAuth.instance.currentUser!.uid,
+          CommentsFieldsName.requestId: widget.request.id,
+        });
+
+        transaction.update(handymanRef, {
+          'rating_count': newCount,
+          'rating_average': newAverage,
+        });
+      });
+
+      // await api.sendReview(commentController.text, widget.request[RequestFieldsName.assignedHandyman]);
+      Navigator.of(context).pop();
+    } catch (e) {
+      print('Error submitting comment: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Failed to submit comment. Please try again.',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Nunito',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          backgroundColor: Color.fromRGBO(255, 61, 0, 0.7),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      setState(() {
+        isButtonLoading = false;
+      });
     }
   }
 
@@ -76,288 +178,448 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
   }
 
   @override
+  void dispose() {
+    commentController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment(0.71, -0.71),
-          end: Alignment(-0.71, 0.71),
-          colors: [Color(0xFF56AB94), Color(0xFF53636C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.fromRGBO(86, 171, 148, 0.95),
+            Color.fromRGBO(83, 99, 108, 0.95),
+          ],
         ),
       ),
-      child: isloading
+      child: isLoading
           ? Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Color.fromRGBO(255, 255, 255, 0.7),
+              ),
             )
           : Scaffold(
               backgroundColor: Colors.transparent,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
-                title: Text(
-                  'Requests',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Nunito',
+                elevation: 0,
+                flexibleSpace: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color.fromRGBO(86, 171, 148, 0.95),
+            Color.fromRGBO(83, 99, 108, 0.95),
+                      ],
+                    ),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.2),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                ),
+                title: FadeInDown(
+                  duration: const Duration(milliseconds: 600),
+                  child: const Text(
+                    'Completed Request',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Nunito',
+                      letterSpacing: 1.0,
+                      shadows: [
+                        Shadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.26),
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 centerTitle: true,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Color.fromRGBO(255, 255, 255, 0.1),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.15),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    tooltip: 'Back',
+                  ),
+                ),
                 actions: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.notifications),
-                    color: Colors.white,
-                  )
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: IconButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'Notifications feature coming soon!',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      icon: TweenAnimationBuilder(
+                        tween: Tween<double>(begin: 0, end: 1),
+                        duration: const Duration(milliseconds: 800),
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: 1.0 + (value * 0.1),
+                            child: Icon(
+                              Icons.notifications_outlined,
+                              color: Color.fromRGBO(255, 255, 255, 0.9),
+                              size: 28,
+                            ),
+                          );
+                        },
+                      ),
+                      tooltip: 'Notifications',
+                    ),
+                  ),
                 ],
               ),
               body: SafeArea(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            Container(
-                              width: 180,
-                              height: 160,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage(handyman!
-                                      .get(HandymanFieldsName.profilePicture)),
-                                  fit: BoxFit.fill,
-                                ),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              handyman!.get(HandymanFieldsName.fullName),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFFF5F5F5),
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            Text(
-                              handyman!.get(HandymanFieldsName.category),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFFF5F5F5),
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            const Text(
-                              'Request Done:',
-                              style: TextStyle(
-                                color: Color(0xFFF5F5F5),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            Container(
-                              width: 350,
-                              height: 80,
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF5F5F5),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                  widget.request[RequestFieldsName.request]),
-                            ),
-                            const SizedBox(height: 15),
-                            const Text(
-                              'Photos',
-                              style: TextStyle(
-                                color: Color(0xFFF5F5F5),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 80,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                children: List.generate(
-                                  1,
-                                  (index) => GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ImageViewerScreen(
-                                                    imageUrl: widget.request[
-                                                        RequestFieldsName
-                                                            .imageURL]),
-                                          ));
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(right: 10),
-                                      width: 106.54,
-                                      height: 70,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: NetworkImage(widget.request[
-                                              RequestFieldsName.imageURL]),
-                                          fit: BoxFit.fill,
-                                        ),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 30),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  showCommentBox = !showCommentBox;
-                                });
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.add_circle_outline,
-                                      size: 30, color: Colors.white),
-                                  const SizedBox(width: 5),
-                                  const Text(
-                                    'Add comment',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (showCommentBox)
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  children: [
-                                    TextField(
-                                      controller: commentController,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Write your comment here...',
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: List.generate(5, (index) {
-                                        return IconButton(
-                                          icon: Icon(
-                                            index < selectedRating
-                                                ? Icons.star
-                                                : Icons.star_border,
-                                            color: Colors.amber,
-                                            size: 30,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              selectedRating = index + 1;
-                                            });
-                                          },
-                                        );
-                                      }),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: isButtonLoading||isCommentExist
-                                            ? null
-                                            : () async {
-                                          
-                                                setState(() {
-                                                  isButtonLoading = true;
-                                                });
-
-                                                if (commentController
-                                                    .text.isEmpty) {
-                                                  DialogUtils.buildShowDialog(
-                                                      context,
-                                                      title: 'Empty comment',
-                                                      content:
-                                                          'Please, write your comment first',
-                                                      titleColor: Colors.red);
-                                                  setState(() {
-                                                    isButtonLoading = false;
-                                                  });
-                                                  return;
-                                                }
-                                                try {
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection(CollectionsNames
-                                                          .handymenInformation)
-                                                      .doc(widget.request[
-                                                          RequestFieldsName
-                                                              .assignedHandyman])
-                                                      .collection(
-                                                          CollectionsNames
-                                                              .comments)
-                                                      .add({
-                                                    CommentsFieldsName
-                                                            .clientName:
-                                                        client!.get(
-                                                            ClientFieldsName
-                                                                .fullName),
-                                                    CommentsFieldsName.comment:
-                                                        commentController.text,
-                                                    CommentsFieldsName.rate:
-                                                        selectedRating,
-                                                    CommentsFieldsName.time:
-                                                        DateTime.now(),
-                                                    CommentsFieldsName.clientId:
-                                                        FirebaseAuth.instance
-                                                            .currentUser!.uid,
-                                                    CommentsFieldsName
-                                                            .requestId:
-                                                        widget.request.id
-                                                  });
-                                                  // await api.sendReview(commentController.text, widget.request[RequestFieldsName.assignedHandyman]);
-                                                  //TODO
-                                                  Navigator.of(context).pop();
-                                                } catch (e) {
-                                                  print('Error here : $e');
-                                                } finally {
-                                                  setState(() {
-                                                    isButtonLoading = false;
-                                                  });
-                                                }
-                                              },
-                                        child: isButtonLoading
-                                            ? CircularProgressIndicator()
-                                            : Text(
-                                                isCommentExist? 'Done':'Add',
-                                                style: TextStyle(
-                                                  color: isCommentExist?Colors.green:Colors.black,
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )),
-                                  ],
-                                ),
-                              ),
-                            const SizedBox(height: 80),
-                          ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 600),
+                        child: CircleAvatar(
+                          radius: 90,
+                          backgroundColor: Color.fromRGBO(255, 255, 255, 0.1),
+                          backgroundImage: handyman?[HandymanFieldsName.profilePicture] != null &&
+                                  handyman![HandymanFieldsName.profilePicture].isNotEmpty
+                              ? NetworkImage(handyman![HandymanFieldsName.profilePicture])
+                              : null,
+                          child: handyman?[HandymanFieldsName.profilePicture] == null ||
+                                  handyman![HandymanFieldsName.profilePicture].isEmpty
+                              ? const Icon(
+                                  Icons.person,
+                                  color: Colors.white70,
+                                  size: 90,
+                                )
+                              : null,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 700),
+                        child: Text(
+                          handyman?[HandymanFieldsName.fullName] ?? 'Unknown',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color.fromRGBO(255, 255, 255, 0.95),
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Nunito',
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 800),
+                        child: Text(
+                          handyman?[HandymanFieldsName.category] ?? 'No category',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color.fromRGBO(255, 255, 255, 0.7),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Nunito',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 900),
+                        child: Text(
+                          'Request Completed',
+                          style: TextStyle(
+                            color: Color.fromRGBO(255, 255, 255, 0.95),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Nunito',
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 1000),
+                        child: Container(
+                          width: 350,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(255, 255, 255, 0.95),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.15),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            widget.request[RequestFieldsName.request] ?? 'No details provided',
+                            style: TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Color.fromRGBO(33, 33, 33, 0.9),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 1100),
+                        child: Text(
+                          'Photos',
+                          style: TextStyle(
+                            color: Color.fromRGBO(255, 255, 255, 0.95),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Nunito',
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 1200),
+                        child: SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: 1, // Single image for now
+                            itemBuilder: (context, index) {
+                              final imageUrl = widget.request[RequestFieldsName.imageURL];
+                              return GestureDetector(
+                                onTap: imageUrl != null && imageUrl.isNotEmpty
+                                    ? () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ImageViewerScreen(imageUrl: imageUrl),
+                                          ),
+                                        );
+                                      }
+                                    : null,
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 12),
+                                  width: 120,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.15),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: imageUrl != null && imageUrl.isNotEmpty
+                                        ? Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) => Container(
+                                              color: Color.fromRGBO(255, 255, 255, 0.1),
+                                              child: const Icon(
+                                                Icons.broken_image,
+                                                color: Colors.white70,
+                                                size: 50,
+                                              ),
+                                            ),
+                                          )
+                                        : Container(
+                                            color: Color.fromRGBO(255, 255, 255, 0.1),
+                                            child: const Icon(
+                                              Icons.image_not_supported,
+                                              color: Colors.white70,
+                                              size: 50,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 1300),
+                        child: GestureDetector(
+                          onTap: isCommentExist
+                              ? null
+                              : () {
+                                  setState(() {
+                                    showCommentBox = !showCommentBox;
+                                  });
+                                },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_circle_outline,
+                                size: 32,
+                                color: isCommentExist
+                                    ? Color.fromRGBO(255, 255, 255, 0.5)
+                                    : Color.fromRGBO(255, 255, 255, 0.95),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                isCommentExist ? 'Comment Submitted' : 'Add Comment',
+                                style: TextStyle(
+                                  color: isCommentExist
+                                      ? Color.fromRGBO(255, 255, 255, 0.5)
+                                      : Color.fromRGBO(255, 255, 255, 0.95),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Nunito',
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (showCommentBox)
+                        FadeInUp(
+                          duration: const Duration(milliseconds: 1400),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                TextField(
+                                  controller: commentController,
+                                  maxLines: 4,
+                                  decoration: InputDecoration(
+                                    hintText: 'Write your comment here...',
+                                    hintStyle: TextStyle(
+                                      color: Color.fromRGBO(33, 33, 33, 0.5),
+                                      fontFamily: 'Nunito',
+                                    ),
+                                    filled: true,
+                                    fillColor: Color.fromRGBO(255, 255, 255, 0.95),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding: const EdgeInsets.all(16),
+                                  ),
+                                  style: const TextStyle(
+                                    fontFamily: 'Nunito',
+                                    fontSize: 16,
+                                    color: Color.fromRGBO(33, 33, 33, 0.9),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(5, (index) {
+                                    return IconButton(
+                                      icon: Icon(
+                                        index < selectedRating ? Icons.star : Icons.star_border,
+                                        color: Color.fromRGBO(255, 61, 0, 0.9),
+                                        size: 32,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          selectedRating = index + 1;
+                                        });
+                                      },
+                                    );
+                                  }),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: isButtonLoading || isCommentExist
+                                      ? null
+                                      : _submitComment,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
+                                    padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    elevation: 8,
+                                    shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
+                                  ),
+                                  child: isButtonLoading
+                                      ? const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Text(
+                                          isCommentExist ? 'Done' : 'Submit',
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                            fontFamily: 'Nunito',
+                                            color: Colors.white,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 80),
+                    ],
+                  ),
                 ),
               ),
             ),
