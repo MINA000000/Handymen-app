@@ -39,41 +39,96 @@ class AllRequestsClient extends StatelessWidget {
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      title: FadeInDown(
-        duration: const Duration(milliseconds: 600),
-        child: const Text(
-          'My Requests',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Nunito',
-            letterSpacing: 1.2,
+  return AppBar(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    flexibleSpace: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF56AB94),
+            Color(0xFF2E3B4E),// Purple.shade600
+          ],
+        ),
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(20),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.2), // Replaces Colors.black.withOpacity(0.2)
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
+        ],
+      ),
+    ),
+    title: FadeInDown(
+      duration: const Duration(milliseconds: 600),
+      child: const Text(
+        'My Requests',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 28,
+          fontWeight: FontWeight.w800,
+          fontFamily: 'Nunito',
+          letterSpacing: 1.0,
+          shadows: [
+            Shadow(
+              color: Color.fromRGBO(0, 0, 0, 0.26), // Replaces Colors.black26
+              blurRadius: 4,
+              offset: Offset(1, 1),
+            ),
+          ],
         ),
       ),
-      centerTitle: true,
-      actions: [
-        IconButton(
+    ),
+    centerTitle: true,
+    actions: [
+      Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: IconButton(
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Notifications feature coming soon!'),
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: const Text(
+                  'Notifications feature coming soon!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                backgroundColor: Color.fromRGBO(33, 150, 243, 0.7), // Replaces Colors.blue.shade700
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                duration: const Duration(seconds: 2),
               ),
             );
           },
-          icon: const Icon(Icons.notifications_outlined),
-          color: Colors.white70,
-          iconSize: 28,
+          icon: TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 800),
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: 1.0 + (value * 0.1),
+                child: Icon(
+                  Icons.notifications_outlined,
+                  color: Color.fromRGBO(255, 255, 255, 0.9), // Replaces Colors.white.withOpacity(0.9)
+                  size: 30,
+                ),
+              );
+            },
+          ),
           tooltip: 'Notifications',
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   Widget _buildLoadingState() {
     return const Center(
@@ -182,18 +237,31 @@ class AllRequestsClient extends StatelessWidget {
     return FadeInUp(
       duration: const Duration(milliseconds: 600),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
             child: Text(
               title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 26,
+                fontSize: 20,
                 fontFamily: 'Nunito',
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
               ),
             ),
           ),
