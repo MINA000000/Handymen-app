@@ -8,10 +8,113 @@ import 'package:grad_project/components/image_viewer_screen.dart';
 import 'package:provider/provider.dart';
 import '../components/collections.dart';
 
-class NotApprovedRequest extends StatelessWidget {
+class NotApprovedRequest extends StatefulWidget {
   final QueryDocumentSnapshot request;
 
   const NotApprovedRequest({required this.request, super.key});
+
+  @override
+  State<NotApprovedRequest> createState() => _NotApprovedRequestState();
+}
+
+class _NotApprovedRequestState extends State<NotApprovedRequest> {
+  bool _isDeleting = false;
+
+  // Future<void> _deleteRequest(BuildContext context) async {
+  //   setState(() {
+  //     _isDeleting = true;
+  //   });
+
+  //   try {
+  //     await FirebaseFirestore.instance
+  //         .collection(CollectionsNames.requestInformation)
+  //         .doc(widget.request.id)
+  //         .delete();
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: const Text(
+  //           'Request deleted successfully!',
+  //           style: TextStyle(
+  //             color: Colors.white,
+  //             fontFamily: 'Nunito',
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //         backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+  //         behavior: SnackBarBehavior.floating,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         duration: const Duration(seconds: 2),
+  //       ),
+  //     );
+
+  //     // Pop back to the previous screen after successful deletion
+  //     Navigator.pop(context);
+  //   } catch (e) {
+  //     print('Error deleting request: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: const Text(
+  //           'Failed to delete request. Please try again.',
+  //           style: TextStyle(
+  //             color: Colors.white,
+  //             fontFamily: 'Nunito',
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //         backgroundColor: Color.fromRGBO(255, 61, 0, 0.7),
+  //         behavior: SnackBarBehavior.floating,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         duration: const Duration(seconds: 2),
+  //       ),
+  //     );
+  //   } finally {
+  //     setState(() {
+  //       _isDeleting = false;
+  //     });
+  //   }
+  // }
+Future<void> _deleteRequest(BuildContext context) async {
+  if (!mounted) return;
+
+  setState(() {
+    _isDeleting = true;
+  });
+
+  try {
+    // Pop screen first
+    Navigator.pop(context);
+
+    // Small delay to ensure pop transition finishes before deletion
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // Delete from Firestore
+    await FirebaseFirestore.instance
+        .collection(CollectionsNames.requestInformation)
+        .doc(widget.request.id)
+        .delete();
+
+    // Optionally, you can notify the previous screen via a result:
+    // Navigator.pop(context, 'deleted'); and handle that there
+  } catch (e) {
+    print('Error deleting request: $e');
+
+    // Can't show a snackbar on this screen anymore, but you can:
+    // - Pass back an error
+    // - Log it
+    // - Or show a global error using a provider/snackbar manager
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isDeleting = false;
+      });
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +143,11 @@ class NotApprovedRequest extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: [
                   Color.fromRGBO(86, 171, 148, 0.95),
-            Color.fromRGBO(83, 99, 108, 0.95),
+                  Color.fromRGBO(83, 99, 108, 0.95),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -152,8 +256,8 @@ class NotApprovedRequest extends StatelessWidget {
                 FadeInUp(
                   duration: const Duration(milliseconds: 600),
                   child: Container(
-                    width: 300,
-                    height: 180,
+                    width: 350,
+                    padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: Color.fromRGBO(255, 255, 255, 0.95),
                       borderRadius: BorderRadius.circular(20),
@@ -165,16 +269,14 @@ class NotApprovedRequest extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        request[RequestFieldsName.request] ?? 'No request details',
-                        style: const TextStyle(
-                          fontFamily: 'Nunito',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromRGBO(33, 33, 33, 0.9),
-                        ),
+                    child: Text(
+                      widget.request[RequestFieldsName.request] ??
+                          'No request details',
+                      style: const TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color.fromRGBO(33, 33, 33, 0.9),
                       ),
                     ),
                   ),
@@ -182,21 +284,24 @@ class NotApprovedRequest extends StatelessWidget {
                 const SizedBox(height: 30),
                 FadeInUp(
                   duration: const Duration(milliseconds: 800),
-                  child: request[RequestFieldsName.imageURL].isNotEmpty
+                  child: widget.request[RequestFieldsName.imageURL]
+                              ?.isNotEmpty ??
+                          false
                       ? GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ImageViewerScreen(
-                                  imageUrl: request[RequestFieldsName.imageURL],
+                                  imageUrl: widget
+                                      .request[RequestFieldsName.imageURL],
                                 ),
                               ),
                             );
                           },
                           child: Container(
-                            width: 160,
-                            height: 160,
+                            width: 200,
+                            height: 200,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
@@ -210,14 +315,15 @@ class NotApprovedRequest extends StatelessWidget {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: Image.network(
-                                request[RequestFieldsName.imageURL],
+                                widget.request[RequestFieldsName.imageURL],
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
                                   color: Color.fromRGBO(255, 255, 255, 0.1),
                                   child: const Icon(
                                     Icons.broken_image,
                                     color: Colors.white70,
-                                    size: 60,
+                                    size: 80,
                                   ),
                                 ),
                               ),
@@ -225,8 +331,8 @@ class NotApprovedRequest extends StatelessWidget {
                           ),
                         )
                       : Container(
-                          width: 160,
-                          height: 160,
+                          width: 200,
+                          height: 200,
                           decoration: BoxDecoration(
                             color: Color.fromRGBO(255, 255, 255, 0.1),
                             borderRadius: BorderRadius.circular(20),
@@ -241,45 +347,149 @@ class NotApprovedRequest extends StatelessWidget {
                           child: const Icon(
                             Icons.image_not_supported,
                             color: Colors.white70,
-                            size: 60,
+                            size: 80,
                           ),
                         ),
                 ),
                 const SizedBox(height: 30),
                 FadeInUp(
                   duration: const Duration(milliseconds: 1000),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HanymenProfiles(
-                            categoryName: request[RequestFieldsName.category] ?? '',
-                            docId: request.id,
-                            request: request[RequestFieldsName.request] ?? '',
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HanymenProfiles(
+                                categoryName: widget
+                                        .request[RequestFieldsName.category] ??
+                                    '',
+                                docId: widget.request.id,
+                                request:
+                                    widget.request[RequestFieldsName.request] ??
+                                        '',
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromRGBO(186, 209, 186, 0.894),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          elevation: 8,
+                          shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
+                        ),
+                        child: const Text(
+                          'Send to Handyman',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Nunito',
+                            color: Color.fromARGB(255, 19, 1, 1),
+                            letterSpacing: 0.5,
                           ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
                       ),
-                      elevation: 8,
-                      shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
-                    ),
-                    child: const Text(
-                      'Send to Handyman',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Nunito',
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        onPressed: _isDeleting
+                            ? null
+                            : () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor:
+                                        Color.fromRGBO(255, 255, 255, 0.95),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    title: const Text(
+                                      'Delete Request',
+                                      style: TextStyle(
+                                        fontFamily: 'Nunito',
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color.fromRGBO(33, 33, 33, 0.9),
+                                      ),
+                                    ),
+                                    content: const Text(
+                                      'Are you sure you want to delete this request? This action cannot be undone.',
+                                      style: TextStyle(
+                                        fontFamily: 'Nunito',
+                                        fontSize: 16,
+                                        color: Color.fromRGBO(33, 33, 33, 0.7),
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            fontFamily: 'Nunito',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color.fromRGBO(
+                                                33, 150, 243, 0.9),
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          _deleteRequest(context);
+                                        },
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(
+                                            fontFamily: 'Nunito',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color:
+                                                Color.fromRGBO(255, 61, 0, 0.9),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          elevation: 8,
+                          shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
+                        ),
+                        child: _isDeleting
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Delete Request',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Nunito',
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -317,7 +527,8 @@ class NotApprovedRequest extends StatelessWidget {
     );
   }
 
-  Widget _buildRequestCard(String category, String content, String handymanName) {
+  Widget _buildRequestCard(
+      String category, String content, String handymanName) {
     return FadeInUp(
       duration: const Duration(milliseconds: 800),
       child: Padding(
@@ -340,7 +551,8 @@ class NotApprovedRequest extends StatelessWidget {
               ],
             ),
             child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               title: Text(
                 'Category: $category',
                 style: const TextStyle(
