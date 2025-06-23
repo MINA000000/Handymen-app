@@ -10,7 +10,7 @@ class RequestsProviderClient extends ChangeNotifier {
   final List<QueryDocumentSnapshot> _notApproved = [];
   final List<QueryDocumentSnapshot> _done = [];
   bool _isLoading = true;
-  
+
   List<QueryDocumentSnapshot> get requests => _requests;
   List<QueryDocumentSnapshot> get approved => _approved;
   List<QueryDocumentSnapshot> get notApproved => _notApproved;
@@ -20,6 +20,10 @@ class RequestsProviderClient extends ChangeNotifier {
   RequestsProviderClient() {
     _fetchRequests();
   }
+  void changeState() {
+    notifyListeners();
+  }
+
   void _fetchRequests() {
     FirebaseFirestore.instance
         .collection('request_information')
@@ -46,6 +50,7 @@ class RequestsProviderClient extends ChangeNotifier {
       _isLoading = false;
       notifyListeners(); // ✅ Notify UI about updates
     });
+    notifyListeners();
   }
 }
 //
