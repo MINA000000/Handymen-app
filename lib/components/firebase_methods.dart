@@ -245,11 +245,17 @@ class FirebaseMethods {
         handymenWantingList.contains(handymanId);
 
     if (existsInBoth) {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('handymen_information')
+        .doc(handymanId)
+        .get();
+      final data = snapshot.data() as Map<String, dynamic>;
       await docRef.update({
         'client_wanting_handymen': FieldValue.arrayRemove([handymanId]),
         'handymen_wanting_request': FieldValue.arrayRemove([handymanId]),
         'assigned_handyman': handymanId,
-        'status':'approved'
+        'status':'approved',
+        'assigned_hanyman_name': data['full_name'] as String?,
       });
     } else {
       // If not already in the list, add to the specified list (e.g., handymen_wanting_request)
