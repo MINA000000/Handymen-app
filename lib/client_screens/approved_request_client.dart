@@ -19,12 +19,21 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
         .collection(CollectionsNames.requestInformation)
         .doc(requestId);
     await docRef.update({'status': 'done'});
+
+    DocumentSnapshot snapshot = await docRef.get();
+    final data = snapshot.data() as Map<String, dynamic>;
+    DocumentReference handymanRef = firestore
+        .collection(CollectionsNames.handymenInformation)
+        .doc(data['assigned_handyman']);
+    await handymanRef.update({'projects_count': FieldValue.increment(1)});
   }
 
   Future<String?> getHandymanEmail(String uid) async {
     try {
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection('handymen_information').doc(uid).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('handymen_information')
+          .doc(uid)
+          .get();
       return userDoc.exists ? userDoc.get('email') as String? : null;
     } catch (e) {
       return null;
