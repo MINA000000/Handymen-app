@@ -256,6 +256,7 @@ class FirebaseMethods {
         'assigned_handyman': handymanId,
         'status':'approved',
         'assigned_hanyman_name': data['full_name'] as String?,
+        'handyman_image':data['profile_picture'],
       });
     } else {
       // If not already in the list, add to the specified list (e.g., handymen_wanting_request)
