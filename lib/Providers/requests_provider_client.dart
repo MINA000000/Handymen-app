@@ -52,44 +52,34 @@ class RequestsProviderClient extends ChangeNotifier {
     });
     notifyListeners();
   }
+
+  Future<void> refresh() async {
+    _isLoading = true;
+    notifyListeners();
+
+    var snapshot = await FirebaseFirestore.instance
+        .collection('request_information')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    _requests = snapshot.docs;
+
+    _approved.clear();
+    _notApproved.clear();
+    _done.clear();
+
+    for (var doc in _requests) {
+      if (doc[RequestFieldsName.status] == RequestStatus.approved) {
+        _approved.add(doc);
+      } else if (doc[RequestFieldsName.status] == RequestStatus.notApproved) {
+        _notApproved.add(doc);
+      } else {
+        _done.add(doc);
+      }
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
 }
-//
-// class lol extends ChangeNotifier {
-//   List<QueryDocumentSnapshot> _requests = [];
-//   final List<QueryDocumentSnapshot> _approved = [];
-//   final List<QueryDocumentSnapshot> _notApproved = [];
-//   final List<QueryDocumentSnapshot> _done = [];
-//   bool _isLoading = true;
-//
-//   List<QueryDocumentSnapshot> get requests => _requests;
-//   List<QueryDocumentSnapshot> get approved => _approved;
-//   List<QueryDocumentSnapshot> get notApproved => _notApproved;
-//   List<QueryDocumentSnapshot> get done => _done;
-//   bool get isLoading => _isLoading;
-//   RequestsProvider(){
-//     _fetchRequests();
-//   }
-//   void _fetchRequests()async {
-//     await FirebaseFirestore.instance
-//         .collection('request_information')
-//         .where('uid',isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-//         .orderBy('timestamp',descending: true)
-//         .snapshots()
-//         .listen((snapshot) {
-//       _requests = snapshot.docs;
-//       for(var doc in _requests){
-//         if(doc[RequestFieldsName.status]==RequestStatus.approved){
-//           _approved.add(doc);
-//         }
-//         else if(doc[RequestFieldsName.status]==RequestStatus.notApproved){
-//           _notApproved.add(doc);
-//         }
-//         else{
-//           _done.add(doc);
-//         }
-//       }
-//       _isLoading = false;
-//       notifyListeners(); // ✅ Notify listeners to update UI
-//     });
-//   }
-// }

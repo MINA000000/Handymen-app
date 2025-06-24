@@ -101,15 +101,18 @@ class _HandymanDetailsPageState extends State<HandymanDetailsPage> {
     setState(() {
       buttonLoading = true;
     });
+
     try {
       await FirebaseMethods.addToArrayRequestsCollection(
         widget.docid,
         widget.handymanUId,
         RequestFieldsName.clientWantingHandymen,
       );
+
       setState(() {
         sendCorrectly = true;
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
@@ -128,6 +131,9 @@ class _HandymanDetailsPageState extends State<HandymanDetailsPage> {
           duration: const Duration(seconds: 2),
         ),
       );
+
+       await requestsProvider.refresh();
+      // requestsProvider.changeState();
     } catch (e) {
       print('Error sending request: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -151,9 +157,8 @@ class _HandymanDetailsPageState extends State<HandymanDetailsPage> {
     } finally {
       setState(() {
         buttonLoading = false;
-        requestsProvider.changeState();
-        Navigator.pop(context);
       });
+      Navigator.pop(context); // ✅ outside setState
     }
   }
 
