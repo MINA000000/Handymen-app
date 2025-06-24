@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:grad_project/Providers/requests_provider_client.dart';
 import 'package:grad_project/chat_page.dart';
 import 'package:grad_project/components/collections.dart';
 import 'package:grad_project/components/image_viewer_screen.dart';
+import 'package:provider/provider.dart';
 
 class ApprovedRequestClient extends StatefulWidget {
   final QueryDocumentSnapshot request;
@@ -17,30 +19,33 @@ class ApprovedRequestClient extends StatefulWidget {
 class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
   bool _isMarkingFinished = false;
 
-  Future<void> _markRequestAsFinished(String requestId) async {
-    setState(() {
-      _isMarkingFinished = true;
-    });
+  Future<void> _markRequestAsFinished(String requestId, BuildContext context) async {
+  final requestsProvider = Provider.of<RequestsProviderClient>(context, listen: false);
+  setState(() {
+    _isMarkingFinished = true;
+  });
 
-    try {
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-      DocumentReference docRef = firestore
-          .collection(CollectionsNames.requestInformation)
-          .doc(requestId);
+  try {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    DocumentReference docRef = firestore
+        .collection(CollectionsNames.requestInformation)
+        .doc(requestId);
 
-      await docRef.update({'status': 'done'});
+    await docRef.update({'status': 'done'});
 
-      DocumentSnapshot snapshot = await docRef.get();
-      final data = snapshot.data() as Map<String, dynamic>;
-      String? handymanUid = data['assigned_handyman'];
+    DocumentSnapshot snapshot = await docRef.get();
+    final data = snapshot.data() as Map<String, dynamic>;
+    String? handymanUid = data['assigned_handyman'];
 
-      if (handymanUid != null && handymanUid.isNotEmpty) {
-        DocumentReference handymanRef = firestore
-            .collection(CollectionsNames.handymenInformation)
-            .doc(handymanUid);
-        await handymanRef.update({'projects_count': FieldValue.increment(1)});
-      }
+    if (handymanUid != null && handymanUid.isNotEmpty) {
+      DocumentReference handymanRef = firestore
+          .collection(CollectionsNames.handymenInformation)
+          .doc(handymanUid);
+      await handymanRef.update({'projects_count': FieldValue.increment(1)});
+    }
 
+    // Show snackbar before popping
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
@@ -59,10 +64,18 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
           duration: const Duration(seconds: 2),
         ),
       );
+    }
 
+    // Add a delay to allow the snackbar to be visible
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Pop the screen after showing the snackbar
+    if (mounted) {
       Navigator.of(context).pop();
-    } catch (e) {
-      print('Error marking request as finished: $e');
+    }
+  } catch (e) {
+    print('Error marking request as finished: $e');
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
@@ -81,12 +94,16 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
           duration: const Duration(seconds: 2),
         ),
       );
-    } finally {
+    }
+  } finally {
+    if (mounted) {
       setState(() {
         _isMarkingFinished = false;
+        requestsProvider.changeState();
       });
     }
   }
+}
 
   Future<String?> getHandymanEmail(String? uid) async {
     if (uid == null || uid.isEmpty) return null;
@@ -415,13 +432,16 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                             colors: [
-                                              Color.fromRGBO(214, 214, 214, 0.898),
-                                              Color.fromRGBO(240, 238, 237, 0.698),
+                                              Color.fromRGBO(
+                                                  214, 214, 214, 0.898),
+                                              Color.fromRGBO(
+                                                  240, 238, 237, 0.698),
                                             ],
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Color.fromRGBO(153, 149, 147, 0.976),
+                                              color: Color.fromRGBO(
+                                                  153, 149, 147, 0.976),
                                               blurRadius: 6,
                                               offset: const Offset(0, 2),
                                             ),
@@ -768,7 +788,8 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
                                   TextButton(
                                     onPressed: () {
                                       Navigator.pop(context);
-                                      _markRequestAsFinished(widget.request.id);
+                                      _markRequestAsFinished(
+                                          widget.request.id, context);
                                     },
                                     child: const Text(
                                       'Confirm',

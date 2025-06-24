@@ -96,7 +96,8 @@ class _HandymanDetailsPageState extends State<HandymanDetailsPage> {
   }
 
   Future<void> _makeRequest(context) async {
-    final requestsProvider = Provider.of<RequestsProviderClient>(context, listen: false);
+    final requestsProvider =
+        Provider.of<RequestsProviderClient>(context, listen: false);
     setState(() {
       buttonLoading = true;
     });
@@ -151,6 +152,7 @@ class _HandymanDetailsPageState extends State<HandymanDetailsPage> {
       setState(() {
         buttonLoading = false;
         requestsProvider.changeState();
+        Navigator.pop(context);
       });
     }
   }

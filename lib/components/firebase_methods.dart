@@ -217,6 +217,24 @@ class FirebaseMethods {
     }
   }
 
+  static Future<Map<String, dynamic>> collectInfo(String uid,String collectionName) async {
+    print('Fetching data for uid: $uid');
+
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection(collectionName)
+        .doc(uid)
+        .get();
+
+    if (!snapshot.exists || snapshot.data() == null) {
+      print('Document not found or empty for uid: $uid');
+      return {};
+    }
+
+    final data = snapshot.data() as Map<String, dynamic>;
+    print('Document data for uid $uid: $data');
+    return data;
+  }
+
   static Future<void> addToArrayRequestsCollection(
     String docId,
     String handymanId,
@@ -225,9 +243,9 @@ class FirebaseMethods {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentReference docRef =
         firestore.collection(CollectionsNames.requestInformation).doc(docId);
-     
+
     await docRef.update({
-        wanting: FieldValue.arrayUnion([handymanId]),
+      wanting: FieldValue.arrayUnion([handymanId]),
     });
 
     DocumentSnapshot docSnapshot = await docRef.get();
@@ -245,18 +263,19 @@ class FirebaseMethods {
         handymenWantingList.contains(handymanId);
 
     if (existsInBoth) {
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-        .collection('handymen_information')
-        .doc(handymanId)
-        .get();
-      final data = snapshot.data() as Map<String, dynamic>;
+      final handyData = await collectInfo(handymanId,CollectionsNames.handymenInformation);
+      final clientData = await collectInfo(data['uid'],CollectionsNames.clientsInformation);
+      clientData.forEach((key, value) {
+        print('$key: $value');
+      });
       await docRef.update({
         'client_wanting_handymen': FieldValue.arrayRemove([handymanId]),
         'handymen_wanting_request': FieldValue.arrayRemove([handymanId]),
         'assigned_handyman': handymanId,
-        'status':'approved',
-        'assigned_hanyman_name': data['full_name'] as String?,
-        'handyman_image':data['profile_picture'],
+        'status': 'approved',
+        'assigned_hanyman_name': handyData['full_name'] as String?,
+        'handyman_image': handyData['profile_picture'],
+        'client_name': clientData['full_name'] as String?,
       });
     } else {
       // If not already in the list, add to the specified list (e.g., handymen_wanting_request)
