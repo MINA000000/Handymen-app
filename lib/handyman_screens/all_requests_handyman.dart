@@ -6,8 +6,26 @@ import 'package:grad_project/handyman_screens/approved_request_handyman.dart';
 import 'package:provider/provider.dart';
 import '../components/collections.dart';
 
-class AllRequestsHandyman extends StatelessWidget {
+class AllRequestsHandyman extends StatefulWidget {
   const AllRequestsHandyman({super.key});
+
+  @override
+  _AllRequestsHandymanState createState() => _AllRequestsHandymanState();
+}
+
+class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
+  final Map<String, bool> _sectionVisibility = {
+    'Approved Requests': false,
+    'Not Approved (1)': false,
+    'Not Approved (2)': false,
+    'Completed Requests': false,
+  };
+
+  void _toggleSectionVisibility(String sectionTitle) {
+    setState(() {
+      _sectionVisibility[sectionTitle] = !_sectionVisibility[sectionTitle]!;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +56,7 @@ class AllRequestsHandyman extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: [
                   Color.fromRGBO(86, 171, 148, 0.95),
-            Color.fromRGBO(83, 99, 108, 0.95),
+                  Color.fromRGBO(83, 99, 108, 0.95),
                 ],
               ),
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
@@ -65,32 +83,6 @@ class AllRequestsHandyman extends StatelessWidget {
             ),
           ),
           centerTitle: true,
-          // leading: Padding(
-          //   padding: const EdgeInsets.only(left: 8.0),
-          //   child: IconButton(
-          //     onPressed: () => Navigator.pop(context),
-          //     icon: Container(
-          //       padding: const EdgeInsets.all(8),
-          //       decoration: BoxDecoration(
-          //         color: Color.fromRGBO(255, 255, 255, 0.1),
-          //         shape: BoxShape.circle,
-          //         boxShadow: [
-          //           BoxShadow(
-          //             color: Color.fromRGBO(0, 0, 0, 0.15),
-          //             blurRadius: 6,
-          //             offset: const Offset(0, 2),
-          //           ),
-          //         ],
-          //       ),
-          //       child: const Icon(
-          //         Icons.arrow_back,
-          //         color: Colors.white,
-          //         size: 24,
-          //       ),
-          //     ),
-          //     tooltip: 'Back',
-          //   ),
-          // ),
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -215,77 +207,102 @@ class AllRequestsHandyman extends StatelessWidget {
   }
 
   Widget _buildSection(BuildContext context, String title, List<QueryDocumentSnapshot> requests, int baseDelay) {
-  if (requests.isEmpty) {
-    return const SizedBox.shrink();
-  }
+    if (requests.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-  return FadeInUp(
-    duration: Duration(milliseconds: baseDelay),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FadeInUp(
-          duration: Duration(milliseconds: baseDelay - 100),
-          child: Center(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: Color.fromRGBO(255, 255, 255, 0.1),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.15),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
+    final isVisible = _sectionVisibility[title] ?? false;
+
+    return FadeInUp(
+      duration: Duration(milliseconds: baseDelay),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FadeInUp(
+            duration: Duration(milliseconds: baseDelay - 100),
+            child: GestureDetector(
+              onTap: () => _toggleSectionVisibility(title),
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(255, 255, 255, 0.1),
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 0.95),
-                  fontSize: 24,
-                  fontFamily: 'Nunito',
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.0,
-                  shadows: [
-                    Shadow(
-                      color: Color.fromRGBO(0, 0, 0, 0.2),
-                      blurRadius: 4,
-                      offset: Offset(1, 1),
-                    ),
-                  ],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Color.fromRGBO(255, 255, 255, 0.95),
+                          fontSize: 24,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                          shadows: [
+                            Shadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.2),
+                              blurRadius: 4,
+                              offset: Offset(1, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        isVisible ? Icons.expand_less : Icons.expand_more,
+                        color: Color.fromRGBO(255, 255, 255, 0.9),
+                        size: 24,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        ...requests.asMap().entries.map((entry) {
-          final index = entry.key;
-          final doc = entry.value;
-          final data = doc.data() as Map<String, dynamic>;
-          return FadeInUp(
-            duration: Duration(milliseconds: baseDelay + (index * 100)),
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ApprovedRequestHandyman(request: doc),
-                ),
-              ),
-              child: _buildRequestCard(
-                data[RequestFieldsName.category] ?? 'No category',
-                data[RequestFieldsName.request] ?? 'No details provided',
-                data[RequestFieldsName.assignedHandymanName] ?? 'Not assigned',
-              ),
-            ),
-          );
-        }),
-      ],
-    ),
-  );
-}
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            height: isVisible ? null : 0,
+            child: isVisible
+                ? Column(
+                    children: requests.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final doc = entry.value;
+                      final data = doc.data() as Map<String, dynamic>;
+                      return FadeInUp(
+                        duration: Duration(milliseconds: baseDelay + (index * 100)),
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ApprovedRequestHandyman(request: doc),
+                            ),
+                          ),
+                          child: _buildRequestCard(
+                            data[RequestFieldsName.category] ?? 'No category',
+                            data[RequestFieldsName.request] ?? 'No details provided',
+                            data[RequestFieldsName.assignedHandymanName] ?? 'Not assigned',
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildRequestCard(String category, String content, String handymanName) {
     return Padding(
