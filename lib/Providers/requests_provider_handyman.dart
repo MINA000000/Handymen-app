@@ -15,7 +15,7 @@ class RequestsProviderHandyman extends ChangeNotifier {
   List<QueryDocumentSnapshot> get requests => _requests;
   List<QueryDocumentSnapshot> get approved => _approved;
   List<QueryDocumentSnapshot> get clientWant => _client_want;
-  List<QueryDocumentSnapshot> get HandymanWant => _handyman_want;
+  List<QueryDocumentSnapshot> get handymanWant => _handyman_want;
   List<QueryDocumentSnapshot> get done => _done;
   bool get isLoading => _isLoading;
   RequestsProviderHandyman() {
@@ -32,7 +32,7 @@ class RequestsProviderHandyman extends ChangeNotifier {
     }
   }
 
-  void _fetchRequests() async {
+  Future<void> _fetchRequests() async {
     try {
       await _fetchHandyman();
       _isLoading = true;
@@ -87,5 +87,8 @@ class RequestsProviderHandyman extends ChangeNotifier {
       _isLoading = false;
       notifyListeners(); // ✅ Ensure UI updates on failure
     }
+  }
+  Future<void> refresh() async {
+     _fetchRequests();
   }
 }

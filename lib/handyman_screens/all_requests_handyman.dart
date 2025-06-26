@@ -194,7 +194,7 @@ class AllRequestsHandyman extends StatelessWidget {
                               _buildSection(
                                 context,
                                 'Not Approved (2)',
-                                requestsProvider.HandymanWant,
+                                requestsProvider.handymanWant,
                                 1000,
                               ),
                               _buildSection(
