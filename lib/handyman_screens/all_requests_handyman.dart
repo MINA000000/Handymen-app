@@ -32,16 +32,15 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
     final requestsProvider = Provider.of<RequestsProviderHandyman>(context);
 
     return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color.fromRGBO(86, 171, 148, 0.95),
-            Color.fromRGBO(83, 99, 108, 0.95),
+            Color(0xFF56AB94),
+            Color(0xFF2E3B4E),
           ],
+          stops: [0.0, 1.0],
         ),
       ),
       child: Scaffold(
@@ -55,8 +54,8 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color.fromRGBO(86, 171, 148, 0.95),
-                  Color.fromRGBO(83, 99, 108, 0.95),
+                  Color(0xFF56AB94),
+                  Color(0xFF2E3B4E),
                 ],
               ),
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
@@ -116,7 +115,7 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
                       child: Icon(
                         Icons.notifications_outlined,
                         color: Color.fromRGBO(255, 255, 255, 0.9),
-                        size: 28,
+                        size: 30,
                       ),
                     );
                   },
@@ -127,86 +126,121 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
           ],
         ),
         body: requestsProvider.isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(
-                  color: Color.fromRGBO(255, 255, 255, 0.7),
+                  color: Colors.white,
+                  backgroundColor: Colors.white24,
+                  strokeWidth: 5,
                 ),
               )
             : requestsProvider.requests.isEmpty
                 ? Center(
-                    child: FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(255, 255, 255, 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Text(
-                          'No requests available yet.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Nunito',
-                            letterSpacing: 0.5,
+                    child: FadeIn(
+                      duration: const Duration(milliseconds: 800),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.inbox_rounded,
+                            color: Colors.white70,
+                            size: 80,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No Requests Yet',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 24,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Create a new request to get started!',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 16,
+                              fontFamily: 'Nunito',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   )
-                : Column(
-                    children: [
-                      const Divider(color: Color.fromRGBO(255, 255, 255, 0.3)),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              _buildSection(
-                                context,
-                                'Approved Requests',
-                                requestsProvider.approved,
-                                600,
-                              ),
-                              _buildSection(
-                                context,
-                                'Not Approved (1)',
-                                requestsProvider.clientWant,
-                                800,
-                              ),
-                              _buildSection(
-                                context,
-                                'Not Approved (2)',
-                                requestsProvider.handymanWant,
-                                1000,
-                              ),
-                              _buildSection(
-                                context,
-                                'Completed Requests',
-                                requestsProvider.done,
-                                1200,
-                              ),
-                              const SizedBox(height: 80),
-                            ],
+                : SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSection(
+                          context: context,
+                          title: 'Approved Requests',
+                          requests: requestsProvider.approved,
+                          cardColor: Colors.greenAccent.withOpacity(0.15),
+                          baseDelay: 600,
+                          onTap: (doc) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ApprovedRequestHandyman(request: doc),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                        _buildSection(
+                          context: context,
+                          title: 'Not Approved (1)',
+                          requests: requestsProvider.clientWant,
+                          cardColor: Colors.orangeAccent.withOpacity(0.15),
+                          baseDelay: 800,
+                          onTap: (doc) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ApprovedRequestHandyman(request: doc),
+                            ),
+                          ),
+                        ),
+                        _buildSection(
+                          context: context,
+                          title: 'Not Approved (2)',
+                          requests: requestsProvider.handymanWant,
+                          cardColor: Colors.orangeAccent.withOpacity(0.15),
+                          baseDelay: 1000,
+                          onTap: (doc) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ApprovedRequestHandyman(request: doc),
+                            ),
+                          ),
+                        ),
+                        _buildSection(
+                          context: context,
+                          title: 'Completed Requests',
+                          requests: requestsProvider.done,
+                          cardColor: Colors.blueAccent.withOpacity(0.15),
+                          baseDelay: 1200,
+                          onTap: (doc) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ApprovedRequestHandyman(request: doc),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                      ],
+                    ),
                   ),
       ),
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, List<QueryDocumentSnapshot> requests, int baseDelay) {
+  Widget _buildSection({
+    required BuildContext context,
+    required String title,
+    required List<QueryDocumentSnapshot> requests,
+    required Color cardColor,
+    required int baseDelay,
+    required Function(QueryDocumentSnapshot) onTap,
+  }) {
     if (requests.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -216,56 +250,45 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
     return FadeInUp(
       duration: Duration(milliseconds: baseDelay),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          FadeInUp(
-            duration: Duration(milliseconds: baseDelay - 100),
-            child: GestureDetector(
-              onTap: () => _toggleSectionVisibility(title),
-              child: Center(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(255, 255, 255, 0.1),
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+          GestureDetector(
+            onTap: () => _toggleSectionVisibility(title),
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 0.95),
-                          fontSize: 24,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
-                          shadows: [
-                            Shadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.2),
-                              blurRadius: 4,
-                              offset: Offset(1, 1),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        isVisible ? Icons.expand_less : Icons.expand_more,
-                        color: Color.fromRGBO(255, 255, 255, 0.9),
-                        size: 24,
-                      ),
-                    ],
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    isVisible ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.white.withOpacity(0.9),
+                    size: 24,
+                  ),
+                ],
               ),
             ),
           ),
@@ -278,22 +301,9 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
                     children: requests.asMap().entries.map((entry) {
                       final index = entry.key;
                       final doc = entry.value;
-                      final data = doc.data() as Map<String, dynamic>;
                       return FadeInUp(
                         duration: Duration(milliseconds: baseDelay + (index * 100)),
-                        child: GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ApprovedRequestHandyman(request: doc),
-                            ),
-                          ),
-                          child: _buildRequestCard(
-                            data[RequestFieldsName.category] ?? 'No category',
-                            data[RequestFieldsName.request] ?? 'No details provided',
-                            data[RequestFieldsName.assignedHandymanName] ?? 'Not assigned',
-                          ),
-                        ),
+                        child: _buildRequestCard(doc, context, cardColor, onTap),
                       );
                     }).toList(),
                   )
@@ -304,65 +314,69 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
     );
   }
 
-  Widget _buildRequestCard(String category, String content, String handymanName) {
+  Widget _buildRequestCard(
+    QueryDocumentSnapshot doc,
+    BuildContext context,
+    Color cardColor,
+    Function(QueryDocumentSnapshot) onTap,
+  ) {
+    var data = doc.data() as Map<String, dynamic>;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Card(
+        elevation: 4,
+        shadowColor: Colors.black26,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
         ),
-        color: Color.fromRGBO(255, 255, 255, 0.95),
-        elevation: 0,
+        color: cardColor,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.15),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white12, width: 1),
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.all(16),
             title: Text(
-              'Category: $category',
+              data[RequestFieldsName.category] ?? 'No Category',
               style: const TextStyle(
-                fontFamily: 'Nunito',
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: Color.fromRGBO(33, 33, 33, 0.9),
+                color: Colors.white,
+                fontFamily: 'Nunito',
               ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
-                  'Request: $content',
+                  data[RequestFieldsName.request] ?? 'No Request',
                   style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white70,
                     fontFamily: 'Nunito',
-                    fontSize: 16,
-                    color: Color.fromRGBO(33, 33, 33, 0.7),
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const Divider(color: Color.fromRGBO(0, 0, 0, 0.1)),
+                SizedBox(height: 8),
                 Text(
-                  'Assigned to: $handymanName',
+                  'Assigned to: ${data[RequestFieldsName.assignedHandymanName] ?? 'Unassigned'}',
                   style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white54,
                     fontFamily: 'Nunito',
-                    fontSize: 16,
-                    color: Color.fromRGBO(33, 33, 33, 0.7),
                   ),
                 ),
               ],
             ),
-            trailing: Icon(
+            trailing: const Icon(
               Icons.arrow_forward_ios,
-              color: Color.fromRGBO(255, 61, 0, 0.9),
-              size: 24,
+              color: Colors.white70,
+              size: 20,
             ),
+            onTap: () => onTap(doc),
           ),
         ),
       ),
