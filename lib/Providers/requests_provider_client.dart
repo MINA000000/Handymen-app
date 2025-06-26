@@ -54,7 +54,8 @@ class RequestsProviderClient extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
-    _isLoading = true;
+    try{
+      _isLoading = true;
     notifyListeners();
 
     var snapshot = await FirebaseFirestore.instance
@@ -81,5 +82,12 @@ class RequestsProviderClient extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+    }
+    catch(e){
+        print("❌ Firestore Stream Error on refresh client provider: $e");
+        _isLoading = false;
+        notifyListeners(); 
+    }
   }
+  
 }

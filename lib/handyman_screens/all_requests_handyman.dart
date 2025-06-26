@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:grad_project/Providers/requests_provider_handyman.dart';
 import 'package:grad_project/handyman_screens/approved_request_handyman.dart';
+import 'package:grad_project/handyman_screens/not_approved_client.dart';
+import 'package:grad_project/handyman_screens/not_approved_handy.dart';
 import 'package:provider/provider.dart';
 import '../components/collections.dart';
 
@@ -16,8 +18,8 @@ class AllRequestsHandyman extends StatefulWidget {
 class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
   final Map<String, bool> _sectionVisibility = {
     'Approved Requests': false,
-    'Not Approved (1)': false,
-    'Not Approved (2)': false,
+    'Not Approved client': false,
+    'Not Approved handy': false,
     'Completed Requests': false,
   };
 
@@ -188,27 +190,27 @@ class _AllRequestsHandymanState extends State<AllRequestsHandyman> {
                         ),
                         _buildSection(
                           context: context,
-                          title: 'Not Approved (1)',
+                          title: 'Not Approved client',
                           requests: requestsProvider.clientWant,
                           cardColor: Colors.orangeAccent.withOpacity(0.15),
                           baseDelay: 800,
                           onTap: (doc) => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ApprovedRequestHandyman(request: doc),
+                              builder: (context) => NotApprovedClient(request: doc),
                             ),
                           ),
                         ),
                         _buildSection(
                           context: context,
-                          title: 'Not Approved (2)',
+                          title: 'Not Approved handy',
                           requests: requestsProvider.handymanWant,
                           cardColor: Colors.orangeAccent.withOpacity(0.15),
                           baseDelay: 1000,
                           onTap: (doc) => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ApprovedRequestHandyman(request: doc),
+                              builder: (context) => NotApprovedHandy(request: doc),
                             ),
                           ),
                         ),

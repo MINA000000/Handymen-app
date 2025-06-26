@@ -78,12 +78,12 @@ class RequestsProviderHandyman extends ChangeNotifier {
         _isLoading = false;
         notifyListeners(); // ✅ Notify UI after updating lists
       }, onError: (error) {
-        print("❌ Firestore Stream Error: $error");
+        print("❌ Firestore Stream Error on refresh handyman provider: $error");
         _isLoading = false;
         notifyListeners(); // ✅ Notify UI on error
       });
     } catch (e) {
-      print("❌ Fetch Requests Error: $e");
+      print("❌ Firestore Stream Error on refresh handyman provider: $e");
       _isLoading = false;
       notifyListeners(); // ✅ Ensure UI updates on failure
     }

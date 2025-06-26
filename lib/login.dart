@@ -335,20 +335,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                           // print('ERROR 2');
                                           return;
                                         }
+                                        if (providerSetting.role == 'client') {
+                                          final requestsProviderClient =
+                                              Provider.of<
+                                                      RequestsProviderClient>(
+                                                  context,
+                                                  listen: false);
+                                          await requestsProviderClient
+                                              .refresh();
+                                        } else {
+                                          final requestsProviderHandy = Provider
+                                              .of<RequestsProviderHandyman>(
+                                                  context,
+                                                  listen: false);
+
+                                          await requestsProviderHandy.refresh();
+                                        }
+
                                         Navigator.pushAndRemoveUntil(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => Rest(),
                                             ),
                                             (route) => false);
-                                        final requestsProviderHandy = Provider
-                                            .of<RequestsProviderHandyman>(
-                                                context);
-                                        final requestsProviderClient =
-                                            Provider.of<RequestsProviderClient>(
-                                                context);
-                                        requestsProviderClient.refresh();
-                                        requestsProviderHandy.refresh();
                                       } catch (e) {
                                         print(e);
                                       } finally {
