@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:grad_project/components/collections.dart';
+import 'package:grad_project/components/firebase_methods.dart';
 import 'package:intl/intl.dart';
 
 class NotApprovedClient extends StatelessWidget {
@@ -90,6 +93,7 @@ class NotApprovedClient extends StatelessWidget {
     final formattedDate = timestamp != null
         ? DateFormat('dd MMMM yyyy, HH:mm').format(timestamp)
         : 'No date provided';
+    final isLoading = ValueNotifier<bool>(false);
 
     return Container(
       decoration: const BoxDecoration(
@@ -365,50 +369,115 @@ class NotApprovedClient extends StatelessWidget {
                 FadeInUp(
                   duration: const Duration(milliseconds: 1000),
                   child: Center(
-                    child: GestureDetector(
-                      onTap: () {}, // No functionality as requested
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xFF56AB94),
-                              Color(0xFF2E3B4E),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.check_circle_outline,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Accept Request',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Nunito',
-                                letterSpacing: 0.5,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: isLoading,
+                      builder: (context, loading, child) {
+                        return GestureDetector(
+                          onTap: loading
+                              ? null
+                              : () async {
+                                  isLoading.value = true;
+                                  try {
+                                    await FirebaseMethods.addToArrayRequestsCollection(
+                                      request.id,
+                                      FirebaseAuth.instance.currentUser!.uid,
+                                      RequestFieldsName.handymenWantingRequest,
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Request is Accepted Succssefully',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        backgroundColor: Color.fromRGBO(45, 219, 118, 0.698),
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Failed to accept request: $e',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Nunito',
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        backgroundColor: Color.fromRGBO(255, 61, 0, 0.7),
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                  } finally {
+                                    isLoading.value = false;
+                                  }
+                                },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF56AB94),
+                                  Color(0xFF2E3B4E),
+                                ],
                               ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                            child: loading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle_outline,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Accept Request',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                          fontFamily: 'Nunito',
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
