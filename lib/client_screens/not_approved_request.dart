@@ -407,7 +407,7 @@ class _NotApprovedRequestState extends State<NotApprovedRequest> {
                 // Client Wanting Handymen Section
                 ExpansionTile(
                   title: Text(
-                    'Client Wanting Handymen',
+                    'Your Requested Handymen',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -654,7 +654,7 @@ class _NotApprovedRequestState extends State<NotApprovedRequest> {
                 // Handymen Wanting Request Section
                 ExpansionTile(
                   title: Text(
-                    'Handymen Wanting Request',
+                    'Handymen Offering to Help',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
