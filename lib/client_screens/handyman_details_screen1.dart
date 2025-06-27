@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:grad_project/chat_page.dart';
@@ -578,7 +577,6 @@ class _HandymanDetailsScreen1State extends State<HandymanDetailsScreen1> {
                                           duration: const Duration(seconds: 3),
                                         ),
                                       );
-
                                       int count = 0;
                                       Navigator.popUntil(context, (route) {
                                         return count++ == 2;

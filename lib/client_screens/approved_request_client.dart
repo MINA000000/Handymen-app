@@ -5,6 +5,7 @@ import 'package:grad_project/Providers/requests_provider_client.dart';
 import 'package:grad_project/chat_page.dart';
 import 'package:grad_project/components/collections.dart';
 import 'package:grad_project/components/image_viewer_screen.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ApprovedRequestClient extends StatefulWidget {
@@ -19,91 +20,44 @@ class ApprovedRequestClient extends StatefulWidget {
 class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
   bool _isMarkingFinished = false;
 
-  Future<void> _markRequestAsFinished(String requestId, BuildContext context) async {
-  final requestsProvider = Provider.of<RequestsProviderClient>(context, listen: false);
-  setState(() {
-    _isMarkingFinished = true;
-  });
+  Future<void> _markRequestAsFinished(
+      String requestId, BuildContext context) async {
+    setState(() {
+      _isMarkingFinished = true;
+    });
 
-  try {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentReference docRef = firestore
-        .collection(CollectionsNames.requestInformation)
-        .doc(requestId);
+    try {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      DocumentReference docRef = firestore
+          .collection(CollectionsNames.requestInformation)
+          .doc(requestId);
 
-    await docRef.update({'status': 'done'});
+      await docRef.update({'status': 'done'});
 
-    DocumentSnapshot snapshot = await docRef.get();
-    final data = snapshot.data() as Map<String, dynamic>;
-    String? handymanUid = data['assigned_handyman'];
+      DocumentSnapshot snapshot = await docRef.get();
+      final data = snapshot.data() as Map<String, dynamic>;
+      String? handymanUid = data['assigned_handyman'];
 
-    if (handymanUid != null && handymanUid.isNotEmpty) {
-      DocumentReference handymanRef = firestore
-          .collection(CollectionsNames.handymenInformation)
-          .doc(handymanUid);
-      await handymanRef.update({'projects_count': FieldValue.increment(1)});
-    }
+      if (handymanUid != null && handymanUid.isNotEmpty) {
+        DocumentReference handymanRef = firestore
+            .collection(CollectionsNames.handymenInformation)
+            .doc(handymanUid);
+        await handymanRef.update({'projects_count': FieldValue.increment(1)});
+      }
 
-    // Show snackbar before popping
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Request marked as finished!',
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Nunito',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-
-    // Add a delay to allow the snackbar to be visible
-    await Future.delayed(const Duration(seconds: 2));
-
-    // Pop the screen after showing the snackbar
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
-  } catch (e) {
-    print('Error marking request as finished: $e');
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Failed to mark request as finished. Please try again.',
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Nunito',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: Color.fromRGBO(255, 61, 0, 0.7),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isMarkingFinished = false;
-        requestsProvider.changeState();
-      });
+      if (mounted) {
+        Navigator.pop(context); // Navigate back to previous screen
+      }
+    } catch (e) {
+      print('Error marking request as finished: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isMarkingFinished = false;
+        });
+      }
     }
   }
-}
 
   Future<String?> getHandymanEmail(String? uid) async {
     if (uid == null || uid.isEmpty) return null;
@@ -119,10 +73,37 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
     }
   }
 
+  Future<List<Map<String, dynamic>>> _fetchHandymanComments(
+      String? handymanUid) async {
+    if (handymanUid == null || handymanUid.isEmpty) return [];
+    try {
+      final commentsSnapshot = await FirebaseFirestore.instance
+          .collection(CollectionsNames.handymenInformation)
+          .doc(handymanUid)
+          .collection('comments')
+          .limit(10)
+          .get();
+      return commentsSnapshot.docs.map((commentDoc) {
+        final commentData = commentDoc.data();
+        final time = commentData['time'];
+        return {
+          'client_name': commentData['client_name'] ?? 'Anonymous',
+          'comment': commentData['comment'] ?? 'No comment provided.',
+          'rate': commentData['rate']?.toString() ?? 'N/A',
+          'time': time,
+        };
+      }).toList();
+    } catch (e) {
+      print('Error fetching handyman comments: $e');
+      return [];
+    }
+  }
+
   String formatDate(Timestamp? timestamp) {
-    if (timestamp == null) return 'Unknown date';
+    // return 'just now';
+    if (timestamp == null) return 'Just now';
     DateTime date = timestamp.toDate();
-    return "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+    return "${date.day}/${date.month}/${date.year}";
   }
 
   @override
@@ -222,24 +203,26 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
               padding: const EdgeInsets.only(right: 8.0),
               child: IconButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                        'Notifications feature coming soon!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w600,
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                          'Notifications feature coming soon!',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
+                        backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        duration: const Duration(seconds: 2),
                       ),
-                      backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
+                    );
+                  }
                 },
                 icon: TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0, end: 1),
@@ -745,65 +728,10 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
                   child: ElevatedButton(
                     onPressed: _isMarkingFinished
                         ? null
-                        : () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                backgroundColor:
-                                    Color.fromRGBO(255, 255, 255, 0.95),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                title: const Text(
-                                  'Mark Request as Finished',
-                                  style: TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color.fromRGBO(33, 33, 33, 0.9),
-                                  ),
-                                ),
-                                content: const Text(
-                                  'Are you sure you want to mark this request as finished? This action cannot be undone.',
-                                  style: TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 16,
-                                    color: Color.fromRGBO(33, 33, 33, 0.7),
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        fontFamily: 'Nunito',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color:
-                                            Color.fromRGBO(33, 150, 243, 0.9),
-                                      ),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      _markRequestAsFinished(
-                                          widget.request.id, context);
-                                    },
-                                    child: const Text(
-                                      'Confirm',
-                                      style: TextStyle(
-                                        fontFamily: 'Nunito',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color.fromRGBO(255, 61, 0, 0.9),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                        : () async {
+                            await Future.delayed(
+                                const Duration(milliseconds: 300));
+                            _markRequestAsFinished(widget.request.id, context);
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
@@ -836,6 +764,123 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
                           ),
                   ),
                 ),
+                const SizedBox(height: 30),
+                if (handymanUid != null && handymanUid.isNotEmpty)
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 1300),
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: _fetchHandymanComments(handymanUid),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Color.fromRGBO(33, 150, 243, 0.7),
+                              strokeWidth: 2,
+                            ),
+                          );
+                        }
+                        if (snapshot.hasError ||
+                            !snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        final comments = snapshot.data!;
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ...comments.map<Widget>((comment) {
+                              comment.forEach(
+                                (key, value) {
+                                  print('$key , $value');
+                                },
+                              );
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                color: Color.fromRGBO(255, 255, 255, 0.95),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                elevation: 0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.15),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.all(12),
+                                    leading: CircleAvatar(
+                                      backgroundColor:
+                                          Color.fromRGBO(33, 150, 243, 0.9),
+                                      child: Text(
+                                        comment['client_name']?.isNotEmpty ==
+                                                true
+                                            ? comment['client_name'][0]
+                                                .toUpperCase()
+                                            : '?',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Nunito',
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      comment['client_name'] ?? 'Anonymous',
+                                      style: const TextStyle(
+                                        fontFamily: 'Nunito',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color.fromRGBO(33, 33, 33, 0.9),
+                                      ),
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${comment['comment'] ?? 'No comment provided.'}',
+                                          style: const TextStyle(
+                                            fontFamily: 'Nunito',
+                                            fontSize: 16,
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.7),
+                                          ),
+                                        ),
+                                        Text(
+                                          'Rating: ${comment['rate']}/5',
+                                          style: const TextStyle(
+                                            fontFamily: 'Nunito',
+                                            fontSize: 14,
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: Text(
+                                      formatDate(comment['time']),
+                                      style: const TextStyle(
+                                        fontFamily: 'Nunito',
+                                        fontSize: 12,
+                                        color: Color.fromRGBO(33, 33, 33, 0.7),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                 const SizedBox(height: 40),
               ],
             ),

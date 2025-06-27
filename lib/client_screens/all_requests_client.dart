@@ -47,7 +47,7 @@ class _AllRequestsClientState extends State<AllRequestsClient> {
         backgroundColor: Colors.transparent,
         appBar: _buildAppBar(context),
         body: requestsProvider.isLoading
-            ?  _buildLoadingState()
+            ? _buildLoadingState()
             : requestsProvider.requests.isEmpty
                 ? _buildEmptyState()
                 : _buildRequestList(context, requestsProvider),
@@ -194,48 +194,55 @@ class _AllRequestsClientState extends State<AllRequestsClient> {
     );
   }
 
-  Widget _buildRequestList(BuildContext context, RequestsProviderClient requestsProvider) {
+  Widget _buildRequestList(
+      BuildContext context, RequestsProviderClient requestsProvider) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildRequestSection(
-            context: context,
-            title: 'Approved Requests',
-            requests: requestsProvider.approved,
-            cardColor: Colors.greenAccent.withOpacity(0.15),
-            onTap: (doc) => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ApprovedRequestClient(request: doc),
-              ),
-            ),
-          ),
+              context: context,
+              title: 'Approved Requests',
+              requests: requestsProvider.approved,
+              cardColor: Colors.greenAccent.withOpacity(0.15),
+              onTap: (doc) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ApprovedRequestClient(request: doc),
+                  ),
+                );
+                requestsProvider.refresh();
+              }),
           _buildRequestSection(
-            context: context,
-            title: 'Pending Requests',
-            requests: requestsProvider.notApproved,
-            cardColor: Colors.orangeAccent.withOpacity(0.15),
-            onTap: (doc) => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NotApprovedRequest(request: doc),
-              ),
-            ),
-          ),
+              context: context,
+              title: 'Pending Requests',
+              requests: requestsProvider.notApproved,
+              cardColor: Colors.orangeAccent.withOpacity(0.15),
+              onTap: (doc) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotApprovedRequest(request: doc),
+                  ),
+                );
+                requestsProvider.refresh();
+              }),
           _buildRequestSection(
-            context: context,
-            title: 'Completed Requests',
-            requests: requestsProvider.done,
-            cardColor: Colors.blueAccent.withOpacity(0.15),
-            onTap: (doc) => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DoneRequestClient(request: doc),
-              ),
-            ),
-          ),
+              context: context,
+              title: 'Completed Requests',
+              requests: requestsProvider.done,
+              cardColor: Colors.blueAccent.withOpacity(0.15),
+              onTap: (doc) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DoneRequestClient(request: doc),
+                  ),
+                );
+                requestsProvider.refresh();
+              }),
           SizedBox(height: 20),
         ],
       ),
@@ -309,7 +316,8 @@ class _AllRequestsClientState extends State<AllRequestsClient> {
                       final doc = entry.value;
                       return FadeInUp(
                         duration: Duration(milliseconds: 600 + (index * 100)),
-                        child: _buildRequestCard(doc, context, cardColor, onTap),
+                        child:
+                            _buildRequestCard(doc, context, cardColor, onTap),
                       );
                     }).toList(),
                   )
