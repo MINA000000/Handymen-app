@@ -24,7 +24,6 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
   bool isCommentExist = false;
   bool isLoading = true;
   bool isButtonLoading = false;
-  // ApiServiceSentimentAnalysis api = ApiServiceSentimentAnalysis();
 
   Future<void> _fetchHandymanClient() async {
     try {
@@ -142,7 +141,6 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
         });
       });
 
-      // await api.sendReview(commentController.text, widget.request[RequestFieldsName.assignedHandyman]);
       Navigator.of(context).pop();
     } catch (e) {
       print('Error submitting comment: $e');
@@ -185,6 +183,9 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final double avatarRadius = screenWidth * 0.2; // Responsive avatar size
+
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -216,7 +217,7 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                       end: Alignment.bottomRight,
                       colors: [
                         Color.fromRGBO(86, 171, 148, 0.95),
-            Color.fromRGBO(83, 99, 108, 0.95),
+                        Color.fromRGBO(83, 99, 108, 0.95),
                       ],
                     ),
                     borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
@@ -323,24 +324,45 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 20),
                       FadeInUp(
                         duration: const Duration(milliseconds: 600),
-                        child: CircleAvatar(
-                          radius: 90,
-                          backgroundColor: Color.fromRGBO(255, 255, 255, 0.1),
-                          backgroundImage: handyman?[HandymanFieldsName.profilePicture] != null &&
-                                  handyman![HandymanFieldsName.profilePicture].isNotEmpty
-                              ? NetworkImage(handyman![HandymanFieldsName.profilePicture])
-                              : null,
-                          child: handyman?[HandymanFieldsName.profilePicture] == null ||
-                                  handyman![HandymanFieldsName.profilePicture].isEmpty
-                              ? const Icon(
-                                  Icons.person,
-                                  color: Colors.white70,
-                                  size: 90,
-                                )
-                              : null,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color.fromRGBO(255, 255, 255, 0.3),
+                                Color.fromRGBO(255, 255, 255, 0.1),
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: CircleAvatar(
+                            radius: avatarRadius,
+                            backgroundColor: Color.fromRGBO(255, 255, 255, 0.1),
+                            backgroundImage: handyman?[HandymanFieldsName.profilePicture] != null &&
+                                    handyman![HandymanFieldsName.profilePicture].isNotEmpty
+                                ? NetworkImage(handyman![HandymanFieldsName.profilePicture])
+                                : null,
+                            child: handyman?[HandymanFieldsName.profilePicture] == null ||
+                                    handyman![HandymanFieldsName.profilePicture].isEmpty
+                                ? const Icon(
+                                    Icons.person,
+                                    color: Colors.white70,
+                                    size: 90,
+                                  )
+                                : null,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -351,8 +373,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 0.95),
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
                             fontFamily: 'Nunito',
                             letterSpacing: 0.5,
                           ),
@@ -371,34 +393,99 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
                       FadeInUp(
                         duration: const Duration(milliseconds: 900),
-                        child: Text(
-                          'Request Completed',
-                          style: TextStyle(
-                            color: Color.fromRGBO(255, 255, 255, 0.95),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Nunito',
-                            letterSpacing: 0.5,
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ...List.generate(5, (index) {
+                              final rating = (handyman?[HandymanFieldsName.ratingAverage] as num?)?.toDouble() ?? 0.0;
+                              final starValue = index + 0.5;
+                              return Icon(
+                                rating >= starValue ? Icons.star : 
+                                rating >= starValue - 0.5 ? Icons.star_half : Icons.star_border,
+                                color: Color.fromRGBO(255, 61, 0, 0.9),
+                                size: 24,
+                              );
+                            }),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${(handyman?[HandymanFieldsName.ratingAverage] as num?)?.toDouble().toStringAsFixed(1) ?? '0.0'}/5',
+                              style: TextStyle(
+                                color: Color.fromRGBO(255, 255, 255, 0.95),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Nunito',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       FadeInUp(
                         duration: const Duration(milliseconds: 1000),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Request Completed',
+                              style: TextStyle(
+                                color: Color.fromRGBO(255, 255, 255, 0.95),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Nunito',
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(33, 150, 243, 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Color.fromRGBO(33, 150, 243, 0.5),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                'DONE',
+                                style: TextStyle(
+                                  fontFamily: 'Nunito',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color.fromRGBO(33, 150, 243, 1),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 1100),
                         child: Container(
-                          width: 350,
+                          width: screenWidth * 0.9,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.95),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color.fromRGBO(255, 255, 255, 0.95),
+                                Color.fromRGBO(245, 245, 245, 0.95),
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Color.fromRGBO(255, 255, 255, 0.2),
+                              width: 1.5,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: Color.fromRGBO(0, 0, 0, 0.15),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
                               ),
                             ],
                           ),
@@ -407,17 +494,17 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                             style: TextStyle(
                               fontFamily: 'Nunito',
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: Color.fromRGBO(33, 33, 33, 0.9),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
                       FadeInUp(
-                        duration: const Duration(milliseconds: 1100),
+                        duration: const Duration(milliseconds: 1200),
                         child: Text(
-                          'Photos',
+                          'Photo',
                           style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 0.95),
                             fontSize: 18,
@@ -429,73 +516,64 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                       ),
                       const SizedBox(height: 12),
                       FadeInUp(
-                        duration: const Duration(milliseconds: 1200),
-                        child: SizedBox(
-                          height: 100,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: 1, // Single image for now
-                            itemBuilder: (context, index) {
-                              final imageUrl = widget.request[RequestFieldsName.imageURL];
-                              return GestureDetector(
-                                onTap: imageUrl != null && imageUrl.isNotEmpty
-                                    ? () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ImageViewerScreen(imageUrl: imageUrl),
-                                          ),
-                                        );
-                                      }
-                                    : null,
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 12),
-                                  width: 120,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.15),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: imageUrl != null && imageUrl.isNotEmpty
-                                        ? Image.network(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) => Container(
-                                              color: Color.fromRGBO(255, 255, 255, 0.1),
-                                              child: const Icon(
-                                                Icons.broken_image,
-                                                color: Colors.white70,
-                                                size: 50,
-                                              ),
-                                            ),
-                                          )
-                                        : Container(
-                                            color: Color.fromRGBO(255, 255, 255, 0.1),
-                                            child: const Icon(
-                                              Icons.image_not_supported,
-                                              color: Colors.white70,
-                                              size: 50,
-                                            ),
-                                          ),
-                                  ),
+                        duration: const Duration(milliseconds: 1300),
+                        child: GestureDetector(
+                          onTap: widget.request[RequestFieldsName.imageURL] != null &&
+                                  widget.request[RequestFieldsName.imageURL].isNotEmpty
+                              ? () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ImageViewerScreen(
+                                          imageUrl: widget.request[RequestFieldsName.imageURL]),
+                                    ),
+                                  );
+                                }
+                              : null,
+                          child: Container(
+                            width: screenWidth * 0.5,
+                            height: screenWidth * 0.5,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.15),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                              );
-                            },
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: widget.request[RequestFieldsName.imageURL] != null &&
+                                      widget.request[RequestFieldsName.imageURL].isNotEmpty
+                                  ? Image.network(
+                                      widget.request[RequestFieldsName.imageURL],
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => Container(
+                                        color: Color.fromRGBO(255, 255, 255, 0.1),
+                                        child: const Icon(
+                                          Icons.broken_image,
+                                          color: Colors.white70,
+                                          size: 50,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
+                                      color: Color.fromRGBO(255, 255, 255, 0.1),
+                                      child: const Icon(
+                                        Icons.image_not_supported,
+                                        color: Colors.white70,
+                                        size: 50,
+                                      ),
+                                    ),
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 20),
                       FadeInUp(
-                        duration: const Duration(milliseconds: 1300),
+                        duration: const Duration(milliseconds: 1400),
                         child: GestureDetector(
                           onTap: isCommentExist
                               ? null
@@ -532,92 +610,113 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                         ),
                       ),
                       if (showCommentBox)
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 1400),
+                        ZoomIn(
+                          duration: const Duration(milliseconds: 1500),
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              children: [
-                                TextField(
-                                  controller: commentController,
-                                  maxLines: 4,
-                                  decoration: InputDecoration(
-                                    hintText: 'Write your comment here...',
-                                    hintStyle: TextStyle(
-                                      color: Color.fromRGBO(33, 33, 33, 0.5),
-                                      fontFamily: 'Nunito',
-                                    ),
-                                    filled: true,
-                                    fillColor: Color.fromRGBO(255, 255, 255, 0.95),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    contentPadding: const EdgeInsets.all(16),
-                                  ),
-                                  style: const TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontSize: 16,
-                                    color: Color.fromRGBO(33, 33, 33, 0.9),
-                                  ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(255, 255, 255, 0.95),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Color.fromRGBO(255, 255, 255, 0.2),
+                                  width: 1.5,
                                 ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: List.generate(5, (index) {
-                                    return IconButton(
-                                      icon: Icon(
-                                        index < selectedRating ? Icons.star : Icons.star_border,
-                                        color: Color.fromRGBO(255, 61, 0, 0.9),
-                                        size: 32,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.15),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  TextField(
+                                    controller: commentController,
+                                    maxLines: 4,
+                                    decoration: InputDecoration(
+                                      hintText: 'Write your comment here...',
+                                      hintStyle: TextStyle(
+                                        color: Color.fromRGBO(33, 33, 33, 0.5),
+                                        fontFamily: 'Nunito',
                                       ),
-                                      onPressed: () {
-                                        setState(() {
-                                          selectedRating = index + 1;
-                                        });
-                                      },
-                                    );
-                                  }),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed: isButtonLoading || isCommentExist
-                                      ? null
-                                      : _submitComment,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                                    padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25),
+                                      filled: true,
+                                      fillColor: Color.fromRGBO(255, 255, 255, 0.95),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      contentPadding: const EdgeInsets.all(16),
                                     ),
-                                    elevation: 8,
-                                    shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
+                                    style: const TextStyle(
+                                      fontFamily: 'Nunito',
+                                      fontSize: 16,
+                                      color: Color.fromRGBO(33, 33, 33, 0.9),
+                                    ),
                                   ),
-                                  child: isButtonLoading
-                                      ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : Text(
-                                          isCommentExist ? 'Done' : 'Submit',
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w700,
-                                            fontFamily: 'Nunito',
-                                            color: Colors.white,
-                                            letterSpacing: 0.5,
-                                          ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(5, (index) {
+                                      return IconButton(
+                                        icon: Icon(
+                                          index < selectedRating ? Icons.star : Icons.star_border,
+                                          color: Color.fromRGBO(255, 61, 0, 0.9),
+                                          size: 32,
                                         ),
-                                ),
-                              ],
+                                        onPressed: () {
+                                          setState(() {
+                                            selectedRating = index + 1;
+                                          });
+                                        },
+                                      );
+                                    }),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ZoomIn(
+                                    duration: const Duration(milliseconds: 1600),
+                                    child: ElevatedButton(
+                                      onPressed: isButtonLoading || isCommentExist
+                                          ? null
+                                          : _submitComment,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
+                                        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(25),
+                                        ),
+                                        elevation: 8,
+                                        shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
+                                      ),
+                                      child: isButtonLoading
+                                          ? const SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : Text(
+                                              isCommentExist ? 'Done' : 'Submit',
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w700,
+                                                fontFamily: 'Nunito',
+                                                color: Colors.white,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      const SizedBox(height: 80),
+                      const SizedBox(height: 40),
                     ],
                   ),
                 ),
