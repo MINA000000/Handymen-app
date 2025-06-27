@@ -20,6 +20,11 @@ class HandymanDetailsScreen1 extends StatefulWidget {
 class _HandymanDetailsScreen1State extends State<HandymanDetailsScreen1> {
   bool _isLoading = false;
 
+  String formatDate(Timestamp? timestamp) {
+    if (timestamp == null) return 'Just now';
+    DateTime date = timestamp.toDate();
+    return "${date.day}/${date.month}/${date.year}";
+  }
   Future<Map<String, dynamic>> _fetchHandymanDetails() async {
     try {
       final doc = await FirebaseFirestore.instance
@@ -38,14 +43,12 @@ class _HandymanDetailsScreen1State extends State<HandymanDetailsScreen1> {
           .get();
       final comments = commentsSnapshot.docs.map((commentDoc) {
         final commentData = commentDoc.data();
-        final time = (commentData['time'] as Timestamp?)?.toDate();
+        final time = commentData['time'];
         return {
           'client_name': commentData['client_name'] ?? 'Unknown',
           'comment': commentData['comment'] ?? 'No comment',
           'rate': commentData['rate']?.toString() ?? 'N/A',
-          'time': time != null
-              ? DateFormat('dd MMMM yyyy, HH:mm').format(time)
-              : 'No date',
+          'time': time ?? 'No date',
         };
       }).toList();
 
@@ -345,99 +348,126 @@ class _HandymanDetailsScreen1State extends State<HandymanDetailsScreen1> {
                     // Comments Section (collapsible, only if comments exist)
                     if (hasComments)
                       FadeInUp(
-                        duration: const Duration(milliseconds: 800),
+                        duration: const Duration(milliseconds: 1300),
                         child: ExpansionTile(
-                          title: Text(
-                            'Comments (${handyman['comments'].length})',
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 230, 221, 221),
-                              fontSize: 20,
-                              fontFamily: 'Nunito',
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
+                            title: Text(
+                              'Comments (${handyman['comments'].length})',
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 216, 210, 210),
+                                fontSize: 20,
+                                fontFamily: 'Nunito',
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                              ),
                             ),
-                          ),
-                          trailing: Icon(
-                            Icons.expand_more,
-                            color: Colors.black,
-                          ),
-                          tilePadding:
-                              const EdgeInsets.symmetric(horizontal: 0),
-                          backgroundColor: Colors.transparent,
-                          collapsedBackgroundColor: Colors.transparent,
-                          children: [
-                            const SizedBox(height: 8),
-                            ...handyman['comments'].map<Widget>((comment) {
-                              return FadeInUp(
-                                duration: const Duration(milliseconds: 800),
-                                child: Card(
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          Color(0xFF56AB94)
-                                              .withValues(alpha: 0.2),
-                                          Color(0xFF2E3B4E)
-                                              .withValues(alpha: 0.2),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color:
-                                            Colors.white.withValues(alpha: 0.2),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'From ${comment['client_name']}:',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.8),
-                                              fontFamily: 'Nunito',
+                            trailing: Icon(
+                              Icons.expand_more,
+                              color: const Color.fromARGB(255, 214, 207, 207),
+                            ),
+                            tilePadding:
+                                const EdgeInsets.symmetric(horizontal: 0),
+                            backgroundColor: Colors.transparent,
+                            collapsedBackgroundColor: Colors.transparent,
+                            children: [
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ...handyman['comments']
+                                      .map<Widget>((comment) {
+                                    return Card(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 8),
+                                      color:
+                                          Color.fromRGBO(255, 255, 255, 0.95),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15)),
+                                      elevation: 0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Color.fromRGBO(0, 0, 0, 0.15),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ListTile(
+                                          contentPadding:
+                                              const EdgeInsets.all(12),
+                                          leading: CircleAvatar(
+                                            backgroundColor: Color.fromRGBO(
+                                                33, 150, 243, 0.9),
+                                            child: Text(
+                                              comment['client_name']
+                                                          ?.isNotEmpty ==
+                                                      true
+                                                  ? comment['client_name'][0]
+                                                      .toUpperCase()
+                                                  : '?',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Nunito',
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
                                           ),
-                                          Text(
-                                            comment['comment'],
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.7),
+                                          title: Text(
+                                            comment['client_name'] ??
+                                                'Anonymous',
+                                            style: const TextStyle(
                                               fontFamily: 'Nunito',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color.fromRGBO(
+                                                  33, 33, 33, 0.9),
                                             ),
                                           ),
-                                          Text(
-                                            'Rating: ${comment['rate']}/5 - ${comment['time']}',
-                                            style: TextStyle(
+                                          subtitle: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${comment['comment'] ?? 'No comment provided.'}',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: 'Nunito',
+                                                  fontSize: 16,
+                                                  color: Color.fromRGBO(
+                                                      33, 33, 33, 0.7),
+                                                ),
+                                              ),
+                                              Text(
+                                                '(Rating: ${comment['rate']}/5)',
+                                                style: const TextStyle(
+                                                  fontFamily: 'Nunito',
+                                                  fontSize: 14,
+                                                  color: Color.fromRGBO(
+                                                      33, 33, 33, 0.7),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          trailing: Text(
+                                            formatDate(comment['time']),
+                                            style: const TextStyle(
+                                              fontFamily: 'Nunito',
                                               fontSize: 12,
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.6),
-                                              fontFamily: 'Nunito',
+                                              color: Color.fromRGBO(
+                                                  33, 33, 33, 0.7),
                                             ),
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
+                                    );
+                                  }).toList(),
+                                ],
+                              ),
+                            ]),
                       ),
                     if (hasComments) const SizedBox(height: 24),
                     // Work Pictures Section (collapsible, only if pictures exist)
@@ -579,7 +609,7 @@ class _HandymanDetailsScreen1State extends State<HandymanDetailsScreen1> {
                                       );
                                       int count = 0;
                                       Navigator.popUntil(context, (route) {
-                                        return count++ == 2;
+                                        return count++ == 1;
                                       });
                                     } catch (e) {
                                       ScaffoldMessenger.of(context)
