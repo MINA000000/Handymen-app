@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:grad_project/handyman_screens/all_requests_handyman.dart';
 import 'handyman_home.dart';
 import 'handyman_profile.dart';
+import 'search_page.dart';
 
 class MasterPageHandyman extends StatefulWidget {
   const MasterPageHandyman({super.key});
@@ -18,7 +18,7 @@ class _MasterPageHandymanState extends State<MasterPageHandyman> {
   final List<Widget> _pages = [
     const HandymanHome(),
      HandymanProfile(),
-    const SearchPage(),
+     SearchPage(),
      AllRequestsHandyman(),
   ];
 
@@ -201,61 +201,3 @@ class _MasterPageHandymanState extends State<MasterPageHandyman> {
   }
 }
 
-class SearchPage extends StatelessWidget {
-  const SearchPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color.fromRGBO(86, 171, 148, 0.95),
-            Color.fromRGBO(83, 99, 108, 0.95),
-          ],
-        ),
-      ),
-      child: Center(
-        child: FadeInUp(
-          duration: const Duration(milliseconds: 600),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(255, 255, 255, 0.1),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.15),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Text(
-              'Search Coming Soon',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Nunito',
-                letterSpacing: 0.5,
-                shadows: [
-                  Shadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.2),
-                    blurRadius: 4,
-                    offset: Offset(1, 1),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
