@@ -71,7 +71,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
           .collection(CollectionsNames.handymenInformation)
           .doc(widget.request[RequestFieldsName.assignedHandyman])
           .collection(CollectionsNames.comments)
-          .where(CommentsFieldsName.clientId, isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where(CommentsFieldsName.clientId,
+              isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .where(CommentsFieldsName.requestId, isEqualTo: widget.request.id)
           .get();
 
@@ -120,14 +121,18 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
         }
 
         final handymanData = handymanSnapshot.data() as Map<String, dynamic>;
-        final currentCount = (handymanData['rating_count'] as num?)?.toInt() ?? 0;
-        final currentAverage = (handymanData['rating_average'] as num?)?.toDouble() ?? 0.0;
+        final currentCount =
+            (handymanData['rating_count'] as num?)?.toInt() ?? 0;
+        final currentAverage =
+            (handymanData['rating_average'] as num?)?.toDouble() ?? 0.0;
 
         final newCount = currentCount + 1;
-        final newAverage = ((currentAverage * currentCount) + selectedRating) / newCount;
+        final newAverage =
+            ((currentAverage * currentCount) + selectedRating) / newCount;
 
         transaction.set(commentRef, {
-          CommentsFieldsName.clientName: client?.get(ClientFieldsName.fullName) ?? 'Unknown',
+          CommentsFieldsName.clientName:
+              client?.get(ClientFieldsName.fullName) ?? 'Unknown',
           CommentsFieldsName.comment: commentController.text,
           CommentsFieldsName.rate: selectedRating,
           CommentsFieldsName.time: DateTime.now(),
@@ -220,7 +225,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                         Color.fromRGBO(83, 99, 108, 0.95),
                       ],
                     ),
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                    borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(20)),
                     boxShadow: [
                       BoxShadow(
                         color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -350,12 +356,19 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                           child: CircleAvatar(
                             radius: avatarRadius,
                             backgroundColor: Color.fromRGBO(255, 255, 255, 0.1),
-                            backgroundImage: handyman?[HandymanFieldsName.profilePicture] != null &&
-                                    handyman![HandymanFieldsName.profilePicture].isNotEmpty
-                                ? NetworkImage(handyman![HandymanFieldsName.profilePicture])
+                            backgroundImage: handyman?[HandymanFieldsName
+                                            .profilePicture] !=
+                                        null &&
+                                    handyman![HandymanFieldsName.profilePicture]
+                                        .isNotEmpty
+                                ? NetworkImage(handyman![
+                                    HandymanFieldsName.profilePicture])
                                 : null,
-                            child: handyman?[HandymanFieldsName.profilePicture] == null ||
-                                    handyman![HandymanFieldsName.profilePicture].isEmpty
+                            child: handyman?[HandymanFieldsName
+                                            .profilePicture] ==
+                                        null ||
+                                    handyman![HandymanFieldsName.profilePicture]
+                                        .isEmpty
                                 ? const Icon(
                                     Icons.person,
                                     color: Colors.white70,
@@ -383,7 +396,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                       FadeInUp(
                         duration: const Duration(milliseconds: 800),
                         child: Text(
-                          handyman?[HandymanFieldsName.category] ?? 'No category',
+                          handyman?[HandymanFieldsName.category] ??
+                              'No category',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 0.7),
@@ -399,11 +413,18 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ...List.generate(5, (index) {
-                              final rating = (handyman?[HandymanFieldsName.ratingAverage] as num?)?.toDouble() ?? 0.0;
+                              final rating =
+                                  (handyman?[HandymanFieldsName.ratingAverage]
+                                              as num?)
+                                          ?.toDouble() ??
+                                      0.0;
                               final starValue = index + 0.5;
                               return Icon(
-                                rating >= starValue ? Icons.star : 
-                                rating >= starValue - 0.5 ? Icons.star_half : Icons.star_border,
+                                rating >= starValue
+                                    ? Icons.star
+                                    : rating >= starValue - 0.5
+                                        ? Icons.star_half
+                                        : Icons.star_border,
                                 color: Color.fromRGBO(255, 61, 0, 0.9),
                                 size: 24,
                               );
@@ -439,7 +460,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                             ),
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Color.fromRGBO(33, 150, 243, 0.2),
                                 borderRadius: BorderRadius.circular(12),
@@ -490,7 +512,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                             ],
                           ),
                           child: Text(
-                            widget.request[RequestFieldsName.request] ?? 'No details provided',
+                            widget.request[RequestFieldsName.request] ??
+                                'No details provided',
                             style: TextStyle(
                               fontFamily: 'Nunito',
                               fontSize: 16,
@@ -518,14 +541,17 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                       FadeInUp(
                         duration: const Duration(milliseconds: 1300),
                         child: GestureDetector(
-                          onTap: widget.request[RequestFieldsName.imageURL] != null &&
-                                  widget.request[RequestFieldsName.imageURL].isNotEmpty
+                          onTap: widget.request[RequestFieldsName.imageURL] !=
+                                      null &&
+                                  widget.request[RequestFieldsName.imageURL]
+                                      .isNotEmpty
                               ? () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ImageViewerScreen(
-                                          imageUrl: widget.request[RequestFieldsName.imageURL]),
+                                          imageUrl: widget.request[
+                                              RequestFieldsName.imageURL]),
                                     ),
                                   );
                                 }
@@ -545,13 +571,20 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              child: widget.request[RequestFieldsName.imageURL] != null &&
-                                      widget.request[RequestFieldsName.imageURL].isNotEmpty
+                              child: widget.request[
+                                              RequestFieldsName.imageURL] !=
+                                          null &&
+                                      widget.request[RequestFieldsName.imageURL]
+                                          .isNotEmpty
                                   ? Image.network(
-                                      widget.request[RequestFieldsName.imageURL],
+                                      widget
+                                          .request[RequestFieldsName.imageURL],
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Container(
-                                        color: Color.fromRGBO(255, 255, 255, 0.1),
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                        color:
+                                            Color.fromRGBO(255, 255, 255, 0.1),
                                         child: const Icon(
                                           Icons.broken_image,
                                           color: Colors.white70,
@@ -594,7 +627,9 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                isCommentExist ? 'Comment Submitted' : 'Add Comment',
+                                isCommentExist
+                                    ? 'Comment Submitted'
+                                    : 'Add Comment',
                                 style: TextStyle(
                                   color: isCommentExist
                                       ? Color.fromRGBO(255, 255, 255, 0.5)
@@ -613,7 +648,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                         ZoomIn(
                           duration: const Duration(milliseconds: 1500),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -643,7 +679,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                                         fontFamily: 'Nunito',
                                       ),
                                       filled: true,
-                                      fillColor: Color.fromRGBO(255, 255, 255, 0.95),
+                                      fillColor:
+                                          Color.fromRGBO(255, 255, 255, 0.95),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(20),
                                         borderSide: BorderSide.none,
@@ -662,8 +699,11 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                                     children: List.generate(5, (index) {
                                       return IconButton(
                                         icon: Icon(
-                                          index < selectedRating ? Icons.star : Icons.star_border,
-                                          color: Color.fromRGBO(255, 61, 0, 0.9),
+                                          index < selectedRating
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color:
+                                              Color.fromRGBO(255, 61, 0, 0.9),
                                           size: 32,
                                         ),
                                         onPressed: () {
@@ -676,19 +716,25 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                                   ),
                                   const SizedBox(height: 16),
                                   ZoomIn(
-                                    duration: const Duration(milliseconds: 1600),
+                                    duration:
+                                        const Duration(milliseconds: 1600),
                                     child: ElevatedButton(
-                                      onPressed: isButtonLoading || isCommentExist
-                                          ? null
-                                          : _submitComment,
+                                      onPressed:
+                                          isButtonLoading || isCommentExist
+                                              ? null
+                                              : _submitComment,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                                        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                                        backgroundColor:
+                                            Color.fromRGBO(255, 61, 0, 0.9),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 60, vertical: 16),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
                                         ),
                                         elevation: 8,
-                                        shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
+                                        shadowColor:
+                                            Color.fromRGBO(0, 0, 0, 0.3),
                                       ),
                                       child: isButtonLoading
                                           ? const SizedBox(
@@ -700,7 +746,9 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
                                               ),
                                             )
                                           : Text(
-                                              isCommentExist ? 'Done' : 'Submit',
+                                              isCommentExist
+                                                  ? 'Done'
+                                                  : 'Submit',
                                               style: const TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w700,
