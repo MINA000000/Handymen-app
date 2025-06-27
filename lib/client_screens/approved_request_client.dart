@@ -45,9 +45,9 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
         await handymanRef.update({'projects_count': FieldValue.increment(1)});
       }
 
-      if (mounted) {
-        Navigator.pop(context); // Navigate back to previous screen
-      }
+      // if (mounted) {
+      //   Navigator.pop(context); // Navigate back to previous screen
+      // }
     } catch (e) {
       print('Error marking request as finished: $e');
     } finally {
@@ -732,6 +732,10 @@ class _ApprovedRequestClientState extends State<ApprovedRequestClient> {
                             await Future.delayed(
                                 const Duration(milliseconds: 300));
                             _markRequestAsFinished(widget.request.id, context);
+                            int count = 1;
+                            Navigator.popUntil(context, (route) {
+                              return count++ == 2;
+                            });
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),

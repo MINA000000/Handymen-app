@@ -612,7 +612,7 @@ class _HandymanDetailsScreen2State extends State<HandymanDetailsScreen2> {
 
                                       int count = 0;
                                       Navigator.popUntil(context, (route) {
-                                        return count++ == 2;
+                                        return count++ == 1;
                                       });
                                     } catch (e) {
                                       ScaffoldMessenger.of(context)
