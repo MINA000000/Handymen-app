@@ -330,7 +330,7 @@ class _RequestScreenState extends State<RequestScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => HanymenProfiles(
+                                  builder: (context) => HandymenProfiles(
                                     categoryName: widget.categoryName,
                                     request: _requestController.text,
                                     docId: docid,

@@ -910,7 +910,7 @@ class _NotApprovedRequestState extends State<NotApprovedRequest> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HanymenProfiles(
+                                builder: (context) => HandymenProfiles(
                                   categoryName: data['category'] ?? '',
                                   docId: widget.request.id,
                                   request: data['request'] ?? '',
