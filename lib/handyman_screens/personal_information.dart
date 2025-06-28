@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:grad_project/handyman_screens/work_pictures_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -142,8 +141,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ),
         ),
         backgroundColor: isError
-            ? Color.fromRGBO(255, 61, 0, 0.7)
-            : Color.fromRGBO(33, 150, 243, 0.7),
+            ? const Color.fromRGBO(255, 61, 0, 0.7)
+            : const Color.fromRGBO(33, 150, 243, 0.7),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -287,7 +286,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
     );
   }
 
-  void _showFullScreenImage(String imageUrl) {
+  void _showFullScreenImage(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      _showSnackBar('Invalid image URL', isError: true);
+      return;
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -295,6 +298,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           duration: const Duration(milliseconds: 400),
           child: Dialog(
             backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.zero,
             child: Stack(
               children: [
                 Container(
@@ -310,25 +314,29 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       ],
                     ),
                   ),
-                  child: InteractiveViewer(
-                    panEnabled: true,
-                    minScale: 0.5,
-                    maxScale: 4.0,
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(
-                          color: Color.fromRGBO(255, 61, 0, 0.9),
-                          strokeWidth: 2,
+                  child: Center(
+                    child: InteractiveViewer(
+                      panEnabled: true,
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            color: Color.fromRGBO(255, 61, 0, 0.9),
+                            strokeWidth: 2,
+                          ),
                         ),
+                        errorWidget: (context, url, error) => const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            color: Colors.white70,
+                            size: 50,
+                          ),
+                        ),
+                        cacheManager: CustomCacheManager.instance,
                       ),
-                      errorWidget: (context, url, error) => const Icon(
-                        Icons.broken_image,
-                        color: Colors.white70,
-                        size: 50,
-                      ),
-                      cacheManager: CustomCacheManager.instance,
                     ),
                   ),
                 ),
@@ -579,104 +587,41 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Work Pictures Section
+                    // Work Pictures Section (Collapsible)
                     FadeInUp(
                       duration: const Duration(milliseconds: 600),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: ExpansionTile(
+                        title: const Text(
+                          'Work Pictures',
+                          style: TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                        iconColor: Color.fromRGBO(255, 61, 0, 0.9),
+                        collapsedIconColor: Color.fromRGBO(255, 61, 0, 0.9),
+                        backgroundColor: Colors.transparent,
+                        collapsedBackgroundColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: Color.fromRGBO(255, 255, 255, 0.2),
+                            width: 1.5,
+                          ),
+                        ),
+                        collapsedShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: Color.fromRGBO(255, 255, 255, 0.2),
+                            width: 1.5,
+                          ),
+                        ),
+                        childrenPadding: const EdgeInsets.all(16),
                         children: [
-                          const Text(
-                            'Work Pictures',
-                            style: TextStyle(
-                              fontFamily: 'Nunito',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                          ZoomIn(
-                            duration: const Duration(milliseconds: 600),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const WorkPicturesPage(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromRGBO(255, 61, 0, 0.9),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                elevation: 8,
-                                shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
-                              ),
-                              child: const Text(
-                                'Manage Separately',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Nunito',
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    errorMessage != null
-                        ? FadeInUp(
-                            duration: const Duration(milliseconds: 600),
-                            child: Container(
-                              padding: const EdgeInsets.all(20),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color.fromRGBO(255, 255, 255, 0.15),
-                                    Color.fromRGBO(255, 255, 255, 0.05),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Color.fromRGBO(255, 255, 255, 0.2),
-                                  width: 1.5,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.15),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                errorMessage!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Nunito',
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          )
-                        : workPictures.isEmpty
-                            ? FadeInUp(
-                                duration: const Duration(milliseconds: 600),
-                                child: Container(
+                          errorMessage != null
+                              ? Container(
                                   padding: const EdgeInsets.all(20),
                                   margin: const EdgeInsets.symmetric(
                                       horizontal: 20),
@@ -702,9 +647,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                       ),
                                     ],
                                   ),
-                                  child: const Text(
-                                    'No work pictures available. Add some using the button below!',
-                                    style: TextStyle(
+                                  child: Text(
+                                    errorMessage!,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
@@ -712,161 +657,237 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                ),
-                              )
-                            : GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                padding: const EdgeInsets.all(16),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 0.75,
-                                ),
-                                itemCount: workPictures.length,
-                                itemBuilder: (context, index) {
-                                  final picture = workPictures[index];
-                                  return FadeInUp(
-                                    duration: Duration(
-                                        milliseconds: 700 + (index * 100)),
-                                    child: GestureDetector(
-                                      onTap: () => _showFullScreenImage(
-                                          picture[WorkPictures.imageUrl]),
-                                      child: Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                                )
+                              : workPictures.isEmpty
+                                  ? Container(
+                                      padding: const EdgeInsets.all(20),
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color.fromRGBO(255, 255, 255, 0.15),
+                                            Color.fromRGBO(255, 255, 255, 0.05),
+                                          ],
                                         ),
-                                        color: Colors.transparent,
-                                        elevation: 0,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                              colors: [
-                                                Color.fromRGBO(
-                                                    255, 255, 255, 0.95),
-                                                Color.fromRGBO(
-                                                    245, 245, 245, 0.95),
-                                              ],
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            border: Border.all(
-                                              color: Color.fromRGBO(
-                                                  255, 255, 255, 0.2),
-                                              width: 1.5,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Color.fromRGBO(
-                                                    0, 0, 0, 0.15),
-                                                blurRadius: 12,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Color.fromRGBO(
+                                              255, 255, 255, 0.2),
+                                          width: 1.5,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Color.fromRGBO(0, 0, 0, 0.15),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
                                           ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
-                                            children: [
-                                              Expanded(
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      const BorderRadius
-                                                          .vertical(
-                                                    top: Radius.circular(20),
-                                                  ),
-                                                  child: CachedNetworkImage(
-                                                    imageUrl: picture[
-                                                            WorkPictures
-                                                                .imageUrl] ??
-                                                        '',
-                                                    fit: BoxFit.cover,
-                                                    placeholder:
-                                                        (context, url) =>
-                                                            Container(
-                                                      color: Color.fromRGBO(
-                                                          255, 255, 255, 0.1),
-                                                      child: const Center(
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          color: Color.fromRGBO(
-                                                              255, 61, 0, 0.9),
-                                                          strokeWidth: 2,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    errorWidget:
-                                                        (context, url, error) =>
-                                                            Container(
-                                                      color: Color.fromRGBO(
-                                                          255, 255, 255, 0.1),
-                                                      child: const Icon(
-                                                        Icons.broken_image,
-                                                        color: Colors.white70,
-                                                        size: 50,
-                                                      ),
-                                                    ),
-                                                    cacheManager:
-                                                        CustomCacheManager
-                                                            .instance,
-                                                  ),
-                                                ),
+                                        ],
+                                      ),
+                                      child: const Text(
+                                        'No work pictures available. Add some using the button below!',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Nunito',
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    )
+                                  : GridView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      padding: const EdgeInsets.all(16),
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: 16,
+                                        mainAxisSpacing: 16,
+                                        childAspectRatio: 0.75,
+                                      ),
+                                      itemCount: workPictures.length,
+                                      itemBuilder: (context, index) {
+                                        final picture = workPictures[index];
+                                        return FadeInUp(
+                                          duration: Duration(
+                                              milliseconds:
+                                                  700 + (index * 100)),
+                                          child: GestureDetector(
+                                            onTap: () => _showFullScreenImage(
+                                                picture[WorkPictures.imageUrl]),
+                                            child: Card(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
                                               ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                              color: Colors.transparent,
+                                              elevation: 0,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                    colors: [
+                                                      Color.fromRGBO(
+                                                          255, 255, 255, 0.95),
+                                                      Color.fromRGBO(
+                                                          245, 245, 245, 0.95),
+                                                    ],
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  border: Border.all(
+                                                    color: Color.fromRGBO(
+                                                        255, 255, 255, 0.2),
+                                                    width: 1.5,
+                                                  ),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Color.fromRGBO(
+                                                          0, 0, 0, 0.15),
+                                                      blurRadius: 12,
+                                                      offset:
+                                                          const Offset(0, 4),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .stretch,
                                                   children: [
                                                     Expanded(
-                                                      child: Text(
-                                                        _formatTimestamp(
-                                                            picture[WorkPictures
-                                                                .timestamp]),
-                                                        style: const TextStyle(
-                                                          fontFamily: 'Nunito',
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: Color.fromRGBO(
-                                                              33, 33, 33, 0.7),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .vertical(
+                                                          top: Radius.circular(
+                                                              20),
                                                         ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                                        child:
+                                                            CachedNetworkImage(
+                                                          imageUrl: picture[
+                                                                  WorkPictures
+                                                                      .imageUrl] ??
+                                                              '',
+                                                          fit: BoxFit.cover,
+                                                          placeholder:
+                                                              (context, url) =>
+                                                                  Container(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    255,
+                                                                    255,
+                                                                    255,
+                                                                    0.1),
+                                                            child: const Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                color: Color
+                                                                    .fromRGBO(
+                                                                        255,
+                                                                        61,
+                                                                        0,
+                                                                        0.9),
+                                                                strokeWidth: 2,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          errorWidget: (context,
+                                                                  url, error) =>
+                                                              Container(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    255,
+                                                                    255,
+                                                                    255,
+                                                                    0.1),
+                                                            child: const Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              color: Colors
+                                                                  .white70,
+                                                              size: 50,
+                                                            ),
+                                                          ),
+                                                          cacheManager:
+                                                              CustomCacheManager
+                                                                  .instance,
+                                                        ),
                                                       ),
                                                     ),
-                                                    IconButton(
-                                                      icon: const Icon(
-                                                        Icons.delete,
-                                                        color: Color.fromRGBO(
-                                                            255, 61, 0, 0.9),
-                                                        size: 24,
-                                                      ),
-                                                      onPressed: () =>
-                                                          _showDeleteConfirmationDialog(
-                                                        picture.id,
-                                                        picture[WorkPictures
-                                                            .imageUrl],
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Expanded(
+                                                            child: Text(
+                                                              _formatTimestamp(
+                                                                  picture[WorkPictures
+                                                                      .timestamp]),
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontFamily:
+                                                                    'Nunito',
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color: Color
+                                                                    .fromRGBO(
+                                                                        33,
+                                                                        33,
+                                                                        33,
+                                                                        0.7),
+                                                              ),
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          ),
+                                                          IconButton(
+                                                            icon: const Icon(
+                                                              Icons.delete,
+                                                              color: Color
+                                                                  .fromRGBO(
+                                                                      255,
+                                                                      61,
+                                                                      0,
+                                                                      0.9),
+                                                              size: 24,
+                                                            ),
+                                                            onPressed: () =>
+                                                                _showDeleteConfirmationDialog(
+                                                              picture.id,
+                                                              picture[
+                                                                  WorkPictures
+                                                                      .imageUrl],
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
-                              ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
