@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:grad_project/components/collections.dart';
+import 'package:grad_project/handyman_screens/personal_information.dart';
 import 'package:grad_project/main.dart';
 
 class HandymanProfile extends StatefulWidget {
@@ -306,7 +307,7 @@ class _HandymanProfileState extends State<HandymanProfile> {
                                     Icons.person,
                                     'Personal Information',
                                     () {
-                                      // Navigator.push(context, MaterialPageRoute(builder: (context) => ClientEditInformation()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => PersonalInformation()));
                                     },
                                     1000,
                                   ),
