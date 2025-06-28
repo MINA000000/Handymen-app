@@ -61,10 +61,11 @@ class _ClientProfileState extends State<ClientProfile> {
                 end: Alignment.bottomRight,
                 colors: [
                   Color.fromRGBO(86, 171, 148, 0.95),
-                Color.fromRGBO(83, 99, 108, 0.95),
+                  Color.fromRGBO(83, 99, 108, 0.95),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -180,7 +181,8 @@ class _ClientProfileState extends State<ClientProfile> {
                           FadeInUp(
                             duration: const Duration(milliseconds: 600),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -197,16 +199,20 @@ class _ClientProfileState extends State<ClientProfile> {
                                     ),
                                     child: CircleAvatar(
                                       radius: 60,
-                                      backgroundImage: const AssetImage('assets/avatar.png'),
-                                      backgroundColor: Color.fromRGBO(255, 255, 255, 0.95),
+                                      backgroundImage:
+                                          const AssetImage('assets/avatar.png'),
+                                      backgroundColor:
+                                          Color.fromRGBO(255, 255, 255, 0.95),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        clientData[ClientFieldsName.fullName] ?? 'User',
+                                        clientData[ClientFieldsName.fullName] ??
+                                            'User',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 24,
@@ -215,7 +221,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                           letterSpacing: 0.5,
                                           shadows: [
                                             Shadow(
-                                              color: Color.fromRGBO(0, 0, 0, 0.2),
+                                              color:
+                                                  Color.fromRGBO(0, 0, 0, 0.2),
                                               blurRadius: 4,
                                               offset: const Offset(1, 1),
                                             ),
@@ -233,7 +240,8 @@ class _ClientProfileState extends State<ClientProfile> {
                           FadeInUp(
                             duration: const Duration(milliseconds: 800),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
@@ -257,7 +265,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>  ClientEditInformation(),
+                                            builder: (context) =>
+                                                ClientEditInformation(),
                                           ),
                                         );
                                       },
@@ -268,7 +277,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                       Icons.security,
                                       'Password & Security',
                                       () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
                                             content: const Text(
                                               'Feature coming soon!',
@@ -278,12 +288,15 @@ class _ClientProfileState extends State<ClientProfile> {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                                            backgroundColor: Color.fromRGBO(
+                                                33, 150, 243, 0.7),
                                             behavior: SnackBarBehavior.floating,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
-                                            duration: const Duration(seconds: 2),
+                                            duration:
+                                                const Duration(seconds: 2),
                                           ),
                                         );
                                       },
@@ -294,7 +307,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                       Icons.notifications,
                                       'Notifications',
                                       () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
                                             content: const Text(
                                               'Feature coming soon!',
@@ -304,12 +318,15 @@ class _ClientProfileState extends State<ClientProfile> {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                                            backgroundColor: Color.fromRGBO(
+                                                33, 150, 243, 0.7),
                                             behavior: SnackBarBehavior.floating,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
-                                            duration: const Duration(seconds: 2),
+                                            duration:
+                                                const Duration(seconds: 2),
                                           ),
                                         );
                                       },
@@ -320,7 +337,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                       Icons.language,
                                       'Language',
                                       () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
                                             content: const Text(
                                               'Feature coming soon!',
@@ -330,18 +348,23 @@ class _ClientProfileState extends State<ClientProfile> {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                                            backgroundColor: Color.fromRGBO(
+                                                33, 150, 243, 0.7),
                                             behavior: SnackBarBehavior.floating,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
-                                            duration: const Duration(seconds: 2),
+                                            duration:
+                                                const Duration(seconds: 2),
                                           ),
                                         );
                                       },
                                       3,
                                     ),
-                                    const Divider(color: Color.fromRGBO(255, 255, 255, 0.5)),
+                                    const Divider(
+                                        color:
+                                            Color.fromRGBO(255, 255, 255, 0.5)),
                                     _buildButton(
                                       context,
                                       Icons.logout,
@@ -350,7 +373,9 @@ class _ClientProfileState extends State<ClientProfile> {
                                         await FirebaseAuth.instance.signOut();
                                         Navigator.pushAndRemoveUntil(
                                           context,
-                                          MaterialPageRoute(builder: (context) =>  ChooseScreen()),
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChooseScreen()),
                                           (route) => false,
                                         );
                                       },
@@ -361,7 +386,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                       Icons.delete,
                                       'Delete Account',
                                       () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
                                             content: const Text(
                                               'Feature coming soon!',
@@ -371,12 +397,15 @@ class _ClientProfileState extends State<ClientProfile> {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                                            backgroundColor: Color.fromRGBO(
+                                                33, 150, 243, 0.7),
                                             behavior: SnackBarBehavior.floating,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
-                                            duration: const Duration(seconds: 2),
+                                            duration:
+                                                const Duration(seconds: 2),
                                           ),
                                         );
                                       },
@@ -387,7 +416,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                       Icons.bug_report,
                                       'Report a Bug',
                                       () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
                                             content: const Text(
                                               'Feature coming soon!',
@@ -397,12 +427,15 @@ class _ClientProfileState extends State<ClientProfile> {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                                            backgroundColor: Color.fromRGBO(
+                                                33, 150, 243, 0.7),
                                             behavior: SnackBarBehavior.floating,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
-                                            duration: const Duration(seconds: 2),
+                                            duration:
+                                                const Duration(seconds: 2),
                                           ),
                                         );
                                       },
@@ -424,7 +457,8 @@ class _ClientProfileState extends State<ClientProfile> {
     );
   }
 
-  Widget _buildButton(BuildContext context, IconData icon, String text, VoidCallback onPressed, int index) {
+  Widget _buildButton(BuildContext context, IconData icon, String text,
+      VoidCallback onPressed, int index) {
     return FadeInUp(
       duration: Duration(milliseconds: 1000 + (index * 100)),
       child: Container(
@@ -435,7 +469,8 @@ class _ClientProfileState extends State<ClientProfile> {
             backgroundColor: Color.fromRGBO(255, 255, 255, 0.05),
             shadowColor: Color.fromRGBO(0, 0, 0, 0.2),
             elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
           onPressed: onPressed,
