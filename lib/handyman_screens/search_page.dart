@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:grad_project/components/collections.dart';
+import 'package:grad_project/handyman_screens/request_info.dart';
 import 'package:intl/intl.dart';
 
 class SearchPage extends StatefulWidget {
@@ -245,6 +246,7 @@ class _SearchPageState extends State<SearchPage> {
             ? Center(
                 child: CircularProgressIndicator(
                   color: Color.fromRGBO(255, 255, 255, 0.7),
+                  strokeWidth: 2,
                 ),
               )
             : Column(
@@ -256,7 +258,14 @@ class _SearchPageState extends State<SearchPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Color.fromRGBO(255, 255, 255, 0.95),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color.fromRGBO(255, 255, 255, 0.95),
+                              Color.fromRGBO(245, 245, 245, 0.95),
+                            ],
+                          ),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: Color.fromRGBO(255, 255, 255, 0.2),
@@ -277,16 +286,19 @@ class _SearchPageState extends State<SearchPage> {
                             hintStyle: TextStyle(
                               color: Color.fromRGBO(33, 33, 33, 0.5),
                               fontFamily: 'Nunito',
+                              fontSize: 16,
                             ),
                             prefixIcon: Icon(
                               Icons.search,
-                              color: Color.fromRGBO(33, 33, 33, 0.7),
+                              color: Color.fromRGBO(255, 61, 0, 0.7),
+                              size: 24,
                             ),
                             suffixIcon: _searchController.text.isNotEmpty
                                 ? IconButton(
                                     icon: Icon(
                                       Icons.clear,
-                                      color: Color.fromRGBO(33, 33, 33, 0.7),
+                                      color: Color.fromRGBO(255, 61, 0, 0.7),
+                                      size: 24,
                                     ),
                                     onPressed: () {
                                       _searchController.clear();
@@ -298,12 +310,13 @@ class _SearchPageState extends State<SearchPage> {
                               borderRadius: BorderRadius.circular(20),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14, horizontal: 16),
                           ),
                           style: const TextStyle(
                             fontFamily: 'Nunito',
                             fontSize: 16,
+                            fontWeight: FontWeight.w600,
                             color: Color.fromRGBO(33, 33, 33, 0.9),
                           ),
                         ),
@@ -409,28 +422,30 @@ class _SearchPageState extends State<SearchPage> {
                                         milliseconds: 700 + (index * 100)),
                                     child: GestureDetector(
                                       onTap: () {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Request "${request[RequestFieldsName.request]}" clicked!',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Nunito',
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            backgroundColor: Color.fromRGBO(
-                                                33, 150, 243, 0.7),
-                                            behavior: SnackBarBehavior.floating,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            duration:
-                                                const Duration(seconds: 2),
-                                          ),
-                                        );
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  RequestInfo(request: request),
+                                            ));
+                                        // ScaffoldMessenger.of(context).showSnackBar(
+                                        //   SnackBar(
+                                        //     content: Text(
+                                        //       'Request "${request[RequestFieldsName.request]}" clicked!',
+                                        //       style: const TextStyle(
+                                        //         color: Colors.white,
+                                        //         fontFamily: 'Nunito',
+                                        //         fontWeight: FontWeight.w600,
+                                        //       ),
+                                        //     ),
+                                        //     backgroundColor: Color.fromRGBO(33, 150, 243, 0.7),
+                                        //     behavior: SnackBarBehavior.floating,
+                                        //     shape: RoundedRectangleBorder(
+                                        //       borderRadius: BorderRadius.circular(12),
+                                        //     ),
+                                        //     duration: const Duration(seconds: 2),
+                                        //   ),
+                                        // );
                                       },
                                       child: Card(
                                         shape: RoundedRectangleBorder(
@@ -441,6 +456,8 @@ class _SearchPageState extends State<SearchPage> {
                                         elevation: 0,
                                         child: Container(
                                           width: screenWidth * 0.9,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 12),
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                               begin: Alignment.topLeft,
@@ -468,95 +485,102 @@ class _SearchPageState extends State<SearchPage> {
                                               ),
                                             ],
                                           ),
-                                          child: ListTile(
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 12,
-                                            ),
-                                            leading: Container(
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                gradient: LinearGradient(
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                  colors: [
-                                                    Color.fromRGBO(
-                                                        255, 255, 255, 0.3),
-                                                    Color.fromRGBO(
-                                                        255, 255, 255, 0.1),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  gradient: LinearGradient(
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                    colors: [
+                                                      Color.fromRGBO(
+                                                          255, 255, 255, 0.3),
+                                                      Color.fromRGBO(
+                                                          255, 255, 255, 0.1),
+                                                    ],
+                                                  ),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Color.fromRGBO(
+                                                          0, 0, 0, 0.2),
+                                                      blurRadius: 8,
+                                                      offset:
+                                                          const Offset(0, 2),
+                                                    ),
                                                   ],
                                                 ),
-                                                boxShadow: [
-                                                  BoxShadow(
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                child: CircleAvatar(
+                                                  radius: 30,
+                                                  backgroundColor:
+                                                      Color.fromRGBO(
+                                                          255, 255, 255, 0.1),
+                                                  child: Icon(
+                                                    Icons.handyman,
                                                     color: Color.fromRGBO(
-                                                        0, 0, 0, 0.2),
-                                                    blurRadius: 8,
-                                                    offset: const Offset(0, 2),
+                                                        255, 61, 0, 0.9),
+                                                    size: 30,
                                                   ),
-                                                ],
-                                              ),
-                                              padding: const EdgeInsets.all(2),
-                                              child: CircleAvatar(
-                                                radius: 30,
-                                                backgroundColor: Color.fromRGBO(
-                                                    255, 255, 255, 0.1),
-                                                child: Icon(
-                                                  Icons.handyman,
-                                                  color: Colors.white70,
-                                                  size: 30,
                                                 ),
                                               ),
-                                            ),
-                                            title: Text(
-                                              request[RequestFieldsName
-                                                      .request] ??
-                                                  'No request details',
-                                              style: const TextStyle(
-                                                fontFamily: 'Nunito',
-                                                fontWeight: FontWeight.w800,
-                                                fontSize: 18,
+                                              const SizedBox(width: 16),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      request[RequestFieldsName
+                                                              .request] ??
+                                                          'No request details',
+                                                      style: const TextStyle(
+                                                        fontFamily: 'Nunito',
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        fontSize: 18,
+                                                        color: Color.fromRGBO(
+                                                            33, 33, 33, 0.9),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      request[RequestFieldsName
+                                                              .category] ??
+                                                          'No category',
+                                                      style: const TextStyle(
+                                                        fontFamily: 'Nunito',
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Color.fromRGBO(
+                                                            33, 33, 33, 0.7),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      _formatTimestamp(request[
+                                                          RequestFieldsName
+                                                              .timestamp]),
+                                                      style: const TextStyle(
+                                                        fontFamily: 'Nunito',
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Color.fromRGBO(
+                                                            33, 33, 33, 0.7),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_forward_ios,
                                                 color: Color.fromRGBO(
-                                                    33, 33, 33, 0.9),
+                                                    255, 61, 0, 0.9),
+                                                size: 24,
                                               ),
-                                            ),
-                                            subtitle: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  request[RequestFieldsName
-                                                          .category] ??
-                                                      'No category',
-                                                  style: const TextStyle(
-                                                    fontFamily: 'Nunito',
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Color.fromRGBO(
-                                                        33, 33, 33, 0.7),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  _formatTimestamp(request[
-                                                      RequestFieldsName
-                                                          .timestamp]),
-                                                  style: const TextStyle(
-                                                    fontFamily: 'Nunito',
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Color.fromRGBO(
-                                                        33, 33, 33, 0.7),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            trailing: Icon(
-                                              Icons.arrow_forward_ios,
-                                              color: Color.fromRGBO(
-                                                  255, 61, 0, 0.9),
-                                              size: 24,
-                                            ),
+                                            ],
                                           ),
                                         ),
                                       ),

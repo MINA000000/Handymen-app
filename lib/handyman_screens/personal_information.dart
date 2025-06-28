@@ -212,7 +212,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
           return;
         }
         if (value.length > 500) {
-          _showSnackBar('Description cannot exceed 500 characters', isError: true);
+          _showSnackBar('Description cannot exceed 500 characters',
+              isError: true);
           return;
         }
       }
@@ -301,7 +302,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
     );
   }
 
-  Future<void> _showDeleteConfirmationDialog(String docId, String imageUrl) async {
+  Future<void> _showDeleteConfirmationDialog(
+      String docId, String imageUrl) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -384,7 +386,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromRGBO(33, 150, 243, 0.9),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
@@ -419,7 +422,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
@@ -585,7 +589,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   Color.fromRGBO(83, 99, 108, 0.95),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -724,20 +729,29 @@ class _PersonalInformationState extends State<PersonalInformation> {
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () => _showFullScreenImage(handymanInformation?['profile_picture']),
+                                  onTap: () => _showFullScreenImage(
+                                      handymanInformation?['profile_picture']),
                                   child: CircleAvatar(
                                     radius: 40,
-                                    backgroundColor: Color.fromRGBO(255, 255, 255, 0.1),
-                                    backgroundImage: handymanInformation?['profile_picture'] != null
+                                    backgroundColor:
+                                        Color.fromRGBO(255, 255, 255, 0.1),
+                                    backgroundImage: handymanInformation?[
+                                                'profile_picture'] !=
+                                            null
                                         ? CachedNetworkImageProvider(
-                                            handymanInformation?['profile_picture'],
-                                            cacheManager: CustomCacheManager.instance,
+                                            handymanInformation?[
+                                                'profile_picture'],
+                                            cacheManager:
+                                                CustomCacheManager.instance,
                                           )
                                         : null,
-                                    child: handymanInformation?['profile_picture'] == null
+                                    child: handymanInformation?[
+                                                'profile_picture'] ==
+                                            null
                                         ? const Icon(
                                             Icons.person,
-                                            color: Color.fromRGBO(33, 33, 33, 0.7),
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.7),
                                             size: 40,
                                           )
                                         : null,
@@ -758,21 +772,26 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                     ),
                                     const SizedBox(height: 8),
                                     ZoomIn(
-                                      duration: const Duration(milliseconds: 600),
+                                      duration:
+                                          const Duration(milliseconds: 600),
                                       child: ElevatedButton(
                                         onPressed: isUploading
                                             ? null
                                             : () {
                                                 setState(() {
-                                                  isEditingProfilePicture = true;
+                                                  isEditingProfilePicture =
+                                                      true;
                                                 });
                                                 updateProfilePicture();
                                               },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          backgroundColor:
+                                              Color.fromRGBO(255, 61, 0, 0.9),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(25),
+                                            borderRadius:
+                                                BorderRadius.circular(25),
                                           ),
                                         ),
                                         child: isUploading
@@ -809,16 +828,19 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                             labelStyle: const TextStyle(
                                               fontFamily: 'Nunito',
                                               fontSize: 14,
-                                              color: Color.fromRGBO(33, 33, 33, 0.7),
+                                              color: Color.fromRGBO(
+                                                  33, 33, 33, 0.7),
                                             ),
                                             border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                           ),
                                           style: const TextStyle(
                                             fontFamily: 'Nunito',
                                             fontSize: 16,
-                                            color: Color.fromRGBO(33, 33, 33, 0.9),
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.9),
                                           ),
                                         )
                                       : Text(
@@ -827,13 +849,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                             fontFamily: 'Nunito',
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
-                                            color: Color.fromRGBO(33, 33, 33, 0.7),
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.7),
                                           ),
                                         ),
                                 ),
                                 IconButton(
                                   icon: Icon(
-                                    isEditingFullName ? Icons.cancel : Icons.edit,
+                                    isEditingFullName
+                                        ? Icons.cancel
+                                        : Icons.edit,
                                     color: Color.fromRGBO(255, 61, 0, 0.9),
                                     size: 24,
                                   ),
@@ -843,7 +868,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                         isEditingFullName = false;
                                       } else {
                                         isEditingFullName = true;
-                                        _fullNameController.text = handymanInformation?['full_name'] ?? '';
+                                        _fullNameController.text =
+                                            handymanInformation?['full_name'] ??
+                                                '';
                                       }
                                     });
                                   },
@@ -870,10 +897,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                               });
                                             },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(33, 150, 243, 0.9),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        backgroundColor:
+                                            Color.fromRGBO(33, 150, 243, 0.9),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
                                         ),
                                       ),
                                       child: isCancelingFullName
@@ -898,12 +928,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                     child: ElevatedButton(
                                       onPressed: isSavingFullName
                                           ? null
-                                          : () => updateField('full_name', _fullNameController.text),
+                                          : () => updateField('full_name',
+                                              _fullNameController.text),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        backgroundColor:
+                                            Color.fromRGBO(255, 61, 0, 0.9),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
                                         ),
                                       ),
                                       child: isSavingFullName
@@ -961,16 +995,19 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                             labelStyle: const TextStyle(
                                               fontFamily: 'Nunito',
                                               fontSize: 14,
-                                              color: Color.fromRGBO(33, 33, 33, 0.7),
+                                              color: Color.fromRGBO(
+                                                  33, 33, 33, 0.7),
                                             ),
                                             border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                           ),
                                           style: const TextStyle(
                                             fontFamily: 'Nunito',
                                             fontSize: 16,
-                                            color: Color.fromRGBO(33, 33, 33, 0.9),
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.9),
                                           ),
                                           maxLines: 3,
                                         )
@@ -980,13 +1017,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                             fontFamily: 'Nunito',
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
-                                            color: Color.fromRGBO(33, 33, 33, 0.7),
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.7),
                                           ),
                                         ),
                                 ),
                                 IconButton(
                                   icon: Icon(
-                                    isEditingDescription ? Icons.cancel : Icons.edit,
+                                    isEditingDescription
+                                        ? Icons.cancel
+                                        : Icons.edit,
                                     color: Color.fromRGBO(255, 61, 0, 0.9),
                                     size: 24,
                                   ),
@@ -996,7 +1036,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                         isEditingDescription = false;
                                       } else {
                                         isEditingDescription = true;
-                                        _descriptionController.text = handymanInformation?['description'] ?? '';
+                                        _descriptionController.text =
+                                            handymanInformation?[
+                                                    'description'] ??
+                                                '';
                                       }
                                     });
                                   },
@@ -1023,10 +1066,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                               });
                                             },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(33, 150, 243, 0.9),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        backgroundColor:
+                                            Color.fromRGBO(33, 150, 243, 0.9),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
                                         ),
                                       ),
                                       child: isCancelingDescription
@@ -1051,12 +1097,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                     child: ElevatedButton(
                                       onPressed: isSavingDescription
                                           ? null
-                                          : () => updateField('description', _descriptionController.text),
+                                          : () => updateField('description',
+                                              _descriptionController.text),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        backgroundColor:
+                                            Color.fromRGBO(255, 61, 0, 0.9),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
                                         ),
                                       ),
                                       child: isSavingDescription
@@ -1092,16 +1142,19 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                             labelStyle: const TextStyle(
                                               fontFamily: 'Nunito',
                                               fontSize: 14,
-                                              color: Color.fromRGBO(33, 33, 33, 0.7),
+                                              color: Color.fromRGBO(
+                                                  33, 33, 33, 0.7),
                                             ),
                                             border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                           ),
                                           style: const TextStyle(
                                             fontFamily: 'Nunito',
                                             fontSize: 16,
-                                            color: Color.fromRGBO(33, 33, 33, 0.9),
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.9),
                                           ),
                                           keyboardType: TextInputType.phone,
                                         )
@@ -1111,13 +1164,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                             fontFamily: 'Nunito',
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
-                                            color: Color.fromRGBO(33, 33, 33, 0.7),
+                                            color:
+                                                Color.fromRGBO(33, 33, 33, 0.7),
                                           ),
                                         ),
                                 ),
                                 IconButton(
                                   icon: Icon(
-                                    isEditingPhoneNumber ? Icons.cancel : Icons.edit,
+                                    isEditingPhoneNumber
+                                        ? Icons.cancel
+                                        : Icons.edit,
                                     color: Color.fromRGBO(255, 61, 0, 0.9),
                                     size: 24,
                                   ),
@@ -1127,7 +1183,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                         isEditingPhoneNumber = false;
                                       } else {
                                         isEditingPhoneNumber = true;
-                                        _phoneNumberController.text = handymanInformation?['phone_number'] ?? '';
+                                        _phoneNumberController.text =
+                                            handymanInformation?[
+                                                    'phone_number'] ??
+                                                '';
                                       }
                                     });
                                   },
@@ -1154,10 +1213,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                               });
                                             },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(33, 150, 243, 0.9),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        backgroundColor:
+                                            Color.fromRGBO(33, 150, 243, 0.9),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
                                         ),
                                       ),
                                       child: isCancelingPhoneNumber
@@ -1182,12 +1244,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                     child: ElevatedButton(
                                       onPressed: isSavingPhoneNumber
                                           ? null
-                                          : () => updateField('phone_number', _phoneNumberController.text),
+                                          : () => updateField('phone_number',
+                                              _phoneNumberController.text),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        backgroundColor:
+                                            Color.fromRGBO(255, 61, 0, 0.9),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
                                         ),
                                       ),
                                       child: isSavingPhoneNumber
@@ -1250,7 +1316,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                           errorMessage != null
                               ? Container(
                                   padding: const EdgeInsets.all(20),
-                                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 20),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
@@ -1287,7 +1354,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                               : workPictures.isEmpty
                                   ? Container(
                                       padding: const EdgeInsets.all(20),
-                                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 20),
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
@@ -1299,12 +1367,14 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                         ),
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
-                                          color: Color.fromRGBO(255, 255, 255, 0.2),
+                                          color: Color.fromRGBO(
+                                              255, 255, 255, 0.2),
                                           width: 1.5,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Color.fromRGBO(0, 0, 0, 0.15),
+                                            color:
+                                                Color.fromRGBO(0, 0, 0, 0.15),
                                             blurRadius: 12,
                                             offset: const Offset(0, 4),
                                           ),
@@ -1323,9 +1393,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                     )
                                   : GridView.builder(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       padding: const EdgeInsets.all(16),
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 2,
                                         crossAxisSpacing: 16,
                                         mainAxisSpacing: 16,
@@ -1335,12 +1407,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                       itemBuilder: (context, index) {
                                         final picture = workPictures[index];
                                         return FadeInUp(
-                                          duration: Duration(milliseconds: 700 + (index * 100)),
+                                          duration: Duration(
+                                              milliseconds:
+                                                  700 + (index * 100)),
                                           child: GestureDetector(
-                                            onTap: () => _showFullScreenImage(picture[WorkPictures.imageUrl]),
+                                            onTap: () => _showFullScreenImage(
+                                                picture[WorkPictures.imageUrl]),
                                             child: Card(
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(20),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
                                               ),
                                               color: Colors.transparent,
                                               elevation: 0,
@@ -1350,81 +1426,145 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                                     begin: Alignment.topLeft,
                                                     end: Alignment.bottomRight,
                                                     colors: [
-                                                      Color.fromRGBO(255, 255, 255, 0.95),
-                                                      Color.fromRGBO(245, 245, 245, 0.95),
+                                                      Color.fromRGBO(
+                                                          255, 255, 255, 0.95),
+                                                      Color.fromRGBO(
+                                                          245, 245, 245, 0.95),
                                                     ],
                                                   ),
-                                                  borderRadius: BorderRadius.circular(20),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
                                                   border: Border.all(
-                                                    color: Color.fromRGBO(255, 255, 255, 0.2),
+                                                    color: Color.fromRGBO(
+                                                        255, 255, 255, 0.2),
                                                     width: 1.5,
                                                   ),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: Color.fromRGBO(0, 0, 0, 0.15),
+                                                      color: Color.fromRGBO(
+                                                          0, 0, 0, 0.15),
                                                       blurRadius: 12,
-                                                      offset: const Offset(0, 4),
+                                                      offset:
+                                                          const Offset(0, 4),
                                                     ),
                                                   ],
                                                 ),
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .stretch,
                                                   children: [
                                                     Expanded(
                                                       child: ClipRRect(
-                                                        borderRadius: const BorderRadius.vertical(
-                                                          top: Radius.circular(20),
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .vertical(
+                                                          top: Radius.circular(
+                                                              20),
                                                         ),
-                                                        child: CachedNetworkImage(
-                                                          imageUrl: picture[WorkPictures.imageUrl] ?? '',
+                                                        child:
+                                                            CachedNetworkImage(
+                                                          imageUrl: picture[
+                                                                  WorkPictures
+                                                                      .imageUrl] ??
+                                                              '',
                                                           fit: BoxFit.cover,
-                                                          placeholder: (context, url) => Container(
-                                                            color: Color.fromRGBO(255, 255, 255, 0.1),
+                                                          placeholder:
+                                                              (context, url) =>
+                                                                  Container(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    255,
+                                                                    255,
+                                                                    255,
+                                                                    0.1),
                                                             child: const Center(
-                                                              child: CircularProgressIndicator(
-                                                                color: Color.fromRGBO(255, 61, 0, 0.9),
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                color: Color
+                                                                    .fromRGBO(
+                                                                        255,
+                                                                        61,
+                                                                        0,
+                                                                        0.9),
                                                                 strokeWidth: 2,
                                                               ),
                                                             ),
                                                           ),
-                                                          errorWidget: (context, url, error) => Container(
-                                                            color: Color.fromRGBO(255, 255, 255, 0.1),
+                                                          errorWidget: (context,
+                                                                  url, error) =>
+                                                              Container(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    255,
+                                                                    255,
+                                                                    255,
+                                                                    0.1),
                                                             child: const Icon(
-                                                              Icons.broken_image,
-                                                              color: Colors.white70,
+                                                              Icons
+                                                                  .broken_image,
+                                                              color: Colors
+                                                                  .white70,
                                                               size: 50,
                                                             ),
                                                           ),
-                                                          cacheManager: CustomCacheManager.instance,
+                                                          cacheManager:
+                                                              CustomCacheManager
+                                                                  .instance,
                                                         ),
                                                       ),
                                                     ),
                                                     Padding(
-                                                      padding: const EdgeInsets.all(8.0),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
                                                       child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
                                                         children: [
                                                           Expanded(
                                                             child: Text(
-                                                              _formatTimestamp(picture[WorkPictures.timestamp]),
-                                                              style: const TextStyle(
-                                                                fontFamily: 'Nunito',
+                                                              _formatTimestamp(
+                                                                  picture[WorkPictures
+                                                                      .timestamp]),
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontFamily:
+                                                                    'Nunito',
                                                                 fontSize: 14,
-                                                                fontWeight: FontWeight.w600,
-                                                                color: Color.fromRGBO(33, 33, 33, 0.7),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color: Color
+                                                                    .fromRGBO(
+                                                                        33,
+                                                                        33,
+                                                                        33,
+                                                                        0.7),
                                                               ),
-                                                              overflow: TextOverflow.ellipsis,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
                                                             ),
                                                           ),
                                                           IconButton(
                                                             icon: const Icon(
                                                               Icons.delete,
-                                                              color: Color.fromRGBO(255, 61, 0, 0.9),
+                                                              color: Color
+                                                                  .fromRGBO(
+                                                                      255,
+                                                                      61,
+                                                                      0,
+                                                                      0.9),
                                                               size: 24,
                                                             ),
-                                                            onPressed: () => _showDeleteConfirmationDialog(
+                                                            onPressed: () =>
+                                                                _showDeleteConfirmationDialog(
                                                               picture.id,
-                                                              picture[WorkPictures.imageUrl],
+                                                              picture[
+                                                                  WorkPictures
+                                                                      .imageUrl],
                                                             ),
                                                           ),
                                                         ],
