@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:grad_project/Providers/requests_provider_client.dart';
 import 'package:grad_project/components/dialog_utils.dart';
 import 'package:grad_project/components/firebase_methods.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'handymen_profiles.dart';
 
 class RequestScreen extends StatefulWidget {
@@ -69,10 +71,11 @@ class _RequestScreenState extends State<RequestScreen> {
                 end: Alignment.bottomRight,
                 colors: [
                   Color.fromRGBO(86, 171, 148, 0.95),
-            Color.fromRGBO(83, 99, 108, 0.95),
+                  Color.fromRGBO(83, 99, 108, 0.95),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -309,10 +312,12 @@ class _RequestScreenState extends State<RequestScreen> {
                             try {
                               String downloadURL = '';
                               if (_image != null) {
-                                downloadURL = await FirebaseMethods.uploadImage(_image!);
+                                downloadURL =
+                                    await FirebaseMethods.uploadImage(_image!);
                               }
                               DateTime now = DateTime.now();
-                              String docid = await FirebaseMethods.setRequestInformation(
+                              String docid =
+                                  await FirebaseMethods.setRequestInformation(
                                 uid: FirebaseAuth.instance.currentUser!.uid,
                                 request: _requestController.text,
                                 imageURL: downloadURL,
@@ -324,7 +329,8 @@ class _RequestScreenState extends State<RequestScreen> {
                               await DialogUtils.buildShowDialog(
                                 context,
                                 title: "Done",
-                                content: 'You can now send to handyman to do this work',
+                                content:
+                                    'You can now send to handyman to do this work',
                                 titleColor: Colors.green,
                               );
                               Navigator.push(
@@ -337,6 +343,9 @@ class _RequestScreenState extends State<RequestScreen> {
                                   ),
                                 ),
                               );
+                              final requestsProvider =
+                                  Provider.of<RequestsProviderClient>(context,listen: false);
+                              requestsProvider.refresh();
                             } catch (e) {
                               print(e);
                               await DialogUtils.buildShowDialog(
@@ -355,7 +364,8 @@ class _RequestScreenState extends State<RequestScreen> {
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                      padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
