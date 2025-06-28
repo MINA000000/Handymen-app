@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:grad_project/handyman_screens/work_pictures_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -11,49 +10,38 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:grad_project/components/collections.dart';
 
-class PersonalInformation extends StatefulWidget {
-  const PersonalInformation({super.key});
+class WorkPicturesPage extends StatefulWidget {
+  const WorkPicturesPage({super.key});
 
   @override
-  State<PersonalInformation> createState() => _PersonalInformationState();
+  State<WorkPicturesPage> createState() => _WorkPicturesPageState();
 }
 
-class _PersonalInformationState extends State<PersonalInformation> {
+class _WorkPicturesPageState extends State<WorkPicturesPage> {
   bool isLoading = true;
   String? errorMessage;
-  DocumentSnapshot? handymanInformation;
   List<QueryDocumentSnapshot> workPictures = [];
   final ImagePicker _picker = ImagePicker();
   bool isUploading = false;
 
-  Future<void> fetchHandymanData() async {
+  Future<void> fetchWorkPictures() async {
     try {
-      final handymanSnapshot = await FirebaseFirestore.instance
-          .collection(CollectionsNames.handymenInformation)
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .get();
-
-      final picturesSnapshot = await FirebaseFirestore.instance
+      final querySnapshot = await FirebaseFirestore.instance
           .collection(CollectionsNames.handymenInformation)
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .collection('work_pictures')
           .orderBy(WorkPictures.timestamp, descending: true)
           .get();
 
-      if (!handymanSnapshot.exists) {
-        throw Exception('Handyman information not found');
-      }
-
       setState(() {
-        handymanInformation = handymanSnapshot;
-        workPictures = picturesSnapshot.docs;
+        workPictures = querySnapshot.docs;
         isLoading = false;
       });
     } catch (e) {
-      print("Error fetching data: $e");
+      print("Error fetching work pictures: $e");
       setState(() {
         isLoading = false;
-        errorMessage = 'Failed to load data. Please try again.';
+        errorMessage = 'Failed to load work pictures. Please try again.';
       });
       _showSnackBar(errorMessage!, isError: true);
     }
@@ -92,7 +80,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
         WorkPictures.timestamp: Timestamp.now(),
       });
 
-      await fetchHandymanData();
+      await fetchWorkPictures();
       setState(() {
         isUploading = false;
       });
@@ -119,7 +107,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
       await FirebaseStorage.instance.refFromURL(imageUrl).delete();
       await CachedNetworkImageProvider(imageUrl).evict();
 
-      await fetchHandymanData();
+      await fetchWorkPictures();
       _showSnackBar('Image deleted successfully!');
     } catch (e) {
       print("Error deleting image: $e");
@@ -153,8 +141,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
     );
   }
 
-  Future<void> _showDeleteConfirmationDialog(
-      String docId, String imageUrl) async {
+  Future<void> _showDeleteConfirmationDialog(String docId, String imageUrl) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -227,8 +214,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                           onPressed: () => Navigator.of(context).pop(),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromRGBO(33, 150, 243, 0.9),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
@@ -256,8 +242,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromRGBO(255, 61, 0, 0.9),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
@@ -374,7 +359,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
   @override
   void initState() {
     super.initState();
-    fetchHandymanData();
+    fetchWorkPictures();
   }
 
   @override
@@ -409,8 +394,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   Color.fromRGBO(83, 99, 108, 0.95),
                 ],
               ),
-              borderRadius:
-                  const BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -423,7 +407,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           title: FadeInDown(
             duration: const Duration(milliseconds: 600),
             child: const Text(
-              'Personal Information',
+              'My Work Pictures',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 28,
@@ -499,227 +483,97 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   color: Color.fromRGBO(255, 255, 255, 0.7),
                 ),
               )
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Personal Information Section
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      child: Container(
-                        width: screenWidth * 0.9,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color.fromRGBO(255, 255, 255, 0.95),
-                              Color.fromRGBO(245, 245, 245, 0.95),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Color.fromRGBO(255, 255, 255, 0.2),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Personal Details',
-                              style: TextStyle(
-                                fontFamily: 'Nunito',
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                color: Color.fromRGBO(33, 33, 33, 0.9),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Name: ${handymanInformation?['full_name'] ?? 'N/A'}',
-                              style: const TextStyle(
-                                fontFamily: 'Nunito',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color.fromRGBO(33, 33, 33, 0.7),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Email: ${FirebaseAuth.instance.currentUser?.email ?? 'N/A'}',
-                              style: const TextStyle(
-                                fontFamily: 'Nunito',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color.fromRGBO(33, 33, 33, 0.7),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Category: ${handymanInformation?['category'] ?? 'N/A'}',
-                              style: const TextStyle(
-                                fontFamily: 'Nunito',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color.fromRGBO(33, 33, 33, 0.7),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    // Work Pictures Section
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Work Pictures',
-                            style: TextStyle(
-                              fontFamily: 'Nunito',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                          ZoomIn(
-                            duration: const Duration(milliseconds: 600),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const WorkPicturesPage(),
+            : Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: errorMessage != null
+                        ? Center(
+                            child: FadeInUp(
+                              duration: const Duration(milliseconds: 600),
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                margin: const EdgeInsets.symmetric(horizontal: 20),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color.fromRGBO(255, 255, 255, 0.15),
+                                      Color.fromRGBO(255, 255, 255, 0.05),
+                                    ],
                                   ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromRGBO(255, 61, 0, 0.9),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                elevation: 8,
-                                shadowColor: Color.fromRGBO(0, 0, 0, 0.3),
-                              ),
-                              child: const Text(
-                                'Manage Separately',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Nunito',
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    errorMessage != null
-                        ? FadeInUp(
-                            duration: const Duration(milliseconds: 600),
-                            child: Container(
-                              padding: const EdgeInsets.all(20),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color.fromRGBO(255, 255, 255, 0.15),
-                                    Color.fromRGBO(255, 255, 255, 0.05),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Color.fromRGBO(255, 255, 255, 0.2),
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.15),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
                                   ],
                                 ),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Color.fromRGBO(255, 255, 255, 0.2),
-                                  width: 1.5,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.15),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
+                                child: Text(
+                                  errorMessage!,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Nunito',
                                   ),
-                                ],
-                              ),
-                              child: Text(
-                                errorMessage!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Nunito',
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
                           )
                         : workPictures.isEmpty
-                            ? FadeInUp(
-                                duration: const Duration(milliseconds: 600),
-                                child: Container(
-                                  padding: const EdgeInsets.all(20),
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 20),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Color.fromRGBO(255, 255, 255, 0.15),
-                                        Color.fromRGBO(255, 255, 255, 0.05),
+                            ? Center(
+                                child: FadeInUp(
+                                  duration: const Duration(milliseconds: 600),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(20),
+                                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color.fromRGBO(255, 255, 255, 0.15),
+                                          Color.fromRGBO(255, 255, 255, 0.05),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Color.fromRGBO(255, 255, 255, 0.2),
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.15),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        ),
                                       ],
                                     ),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Color.fromRGBO(255, 255, 255, 0.2),
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.15),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
+                                    child: const Text(
+                                      'No work pictures available. Add some using the button below!',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Nunito',
                                       ),
-                                    ],
-                                  ),
-                                  child: const Text(
-                                    'No work pictures available. Add some using the button below!',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Nunito',
+                                      textAlign: TextAlign.center,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               )
                             : GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
                                 padding: const EdgeInsets.all(16),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 16,
@@ -729,15 +583,12 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                 itemBuilder: (context, index) {
                                   final picture = workPictures[index];
                                   return FadeInUp(
-                                    duration: Duration(
-                                        milliseconds: 700 + (index * 100)),
+                                    duration: Duration(milliseconds: 700 + (index * 100)),
                                     child: GestureDetector(
-                                      onTap: () => _showFullScreenImage(
-                                          picture[WorkPictures.imageUrl]),
+                                      onTap: () => _showFullScreenImage(picture[WorkPictures.imageUrl]),
                                       child: Card(
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
                                         color: Colors.transparent,
                                         elevation: 0,
@@ -747,113 +598,81 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                               colors: [
-                                                Color.fromRGBO(
-                                                    255, 255, 255, 0.95),
-                                                Color.fromRGBO(
-                                                    245, 245, 245, 0.95),
+                                                Color.fromRGBO(255, 255, 255, 0.95),
+                                                Color.fromRGBO(245, 245, 245, 0.95),
                                               ],
                                             ),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                            borderRadius: BorderRadius.circular(20),
                                             border: Border.all(
-                                              color: Color.fromRGBO(
-                                                  255, 255, 255, 0.2),
+                                              color: Color.fromRGBO(255, 255, 255, 0.2),
                                               width: 1.5,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Color.fromRGBO(
-                                                    0, 0, 0, 0.15),
+                                                color: Color.fromRGBO(0, 0, 0, 0.15),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
                                             ],
                                           ),
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
+                                            crossAxisAlignment: CrossAxisAlignment.stretch,
                                             children: [
                                               Expanded(
                                                 child: ClipRRect(
-                                                  borderRadius:
-                                                      const BorderRadius
-                                                          .vertical(
+                                                  borderRadius: const BorderRadius.vertical(
                                                     top: Radius.circular(20),
                                                   ),
                                                   child: CachedNetworkImage(
-                                                    imageUrl: picture[
-                                                            WorkPictures
-                                                                .imageUrl] ??
-                                                        '',
+                                                    imageUrl: picture[WorkPictures.imageUrl] ?? '',
                                                     fit: BoxFit.cover,
-                                                    placeholder:
-                                                        (context, url) =>
-                                                            Container(
-                                                      color: Color.fromRGBO(
-                                                          255, 255, 255, 0.1),
+                                                    placeholder: (context, url) => Container(
+                                                      color: Color.fromRGBO(255, 255, 255, 0.1),
                                                       child: const Center(
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          color: Color.fromRGBO(
-                                                              255, 61, 0, 0.9),
+                                                        child: CircularProgressIndicator(
+                                                          color: Color.fromRGBO(255, 61, 0, 0.9),
                                                           strokeWidth: 2,
                                                         ),
                                                       ),
                                                     ),
-                                                    errorWidget:
-                                                        (context, url, error) =>
-                                                            Container(
-                                                      color: Color.fromRGBO(
-                                                          255, 255, 255, 0.1),
+                                                    errorWidget: (context, url, error) => Container(
+                                                      color: Color.fromRGBO(255, 255, 255, 0.1),
                                                       child: const Icon(
                                                         Icons.broken_image,
                                                         color: Colors.white70,
                                                         size: 50,
                                                       ),
                                                     ),
-                                                    cacheManager:
-                                                        CustomCacheManager
-                                                            .instance,
+                                                    cacheManager: CustomCacheManager.instance,
                                                   ),
                                                 ),
                                               ),
                                               Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
+                                                padding: const EdgeInsets.all(8.0),
                                                 child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     Expanded(
                                                       child: Text(
-                                                        _formatTimestamp(
-                                                            picture[WorkPictures
-                                                                .timestamp]),
+                                                        _formatTimestamp(picture[WorkPictures.timestamp]),
                                                         style: const TextStyle(
                                                           fontFamily: 'Nunito',
                                                           fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: Color.fromRGBO(
-                                                              33, 33, 33, 0.7),
+                                                          fontWeight: FontWeight.w600,
+                                                          color: Color.fromRGBO(33, 33, 33, 0.7),
                                                         ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                                        overflow: TextOverflow.ellipsis,
                                                       ),
                                                     ),
                                                     IconButton(
                                                       icon: const Icon(
                                                         Icons.delete,
-                                                        color: Color.fromRGBO(
-                                                            255, 61, 0, 0.9),
+                                                        color: Color.fromRGBO(255, 61, 0, 0.9),
                                                         size: 24,
                                                       ),
-                                                      onPressed: () =>
-                                                          _showDeleteConfirmationDialog(
+                                                      onPressed: () => _showDeleteConfirmationDialog(
                                                         picture.id,
-                                                        picture[WorkPictures
-                                                            .imageUrl],
+                                                        picture[WorkPictures.imageUrl],
                                                       ),
                                                     ),
                                                   ],
@@ -867,8 +686,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                   );
                                 },
                               ),
-                  ],
-                ),
+                  ),
+                ],
               ),
         floatingActionButton: ZoomIn(
           duration: const Duration(milliseconds: 800),
