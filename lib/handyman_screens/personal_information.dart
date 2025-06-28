@@ -431,7 +431,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           title: FadeInDown(
             duration: const Duration(milliseconds: 600),
             child: const Text(
-              'Personal Information',
+              'Personal Info',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 28,
