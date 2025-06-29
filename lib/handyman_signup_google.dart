@@ -32,7 +32,7 @@ class _HandymanSignupGoogleState extends State<HandymanSignupGoogle> {
   final TextEditingController _firstName = TextEditingController();
   final TextEditingController _lastName = TextEditingController();
   final TextEditingController _phoneNumber = TextEditingController();
-  // final ApiServiceOpenai _apiService = ApiServiceOpenai();
+  final ApiServiceOpenai _apiService = ApiServiceOpenai();
   List<bool> _selectedSkills = List.generate(5, (_) => false);
   String _selectedCategory = 'Carpenter';
   final TextEditingController _projectInfoController = TextEditingController();
@@ -43,12 +43,12 @@ class _HandymanSignupGoogleState extends State<HandymanSignupGoogle> {
   Position? _position;
   bool firstSignUp = true;
 
-  // Future<void> _fetchSkills(String uid) async {
-  //   if (uid.isNotEmpty) {
-  //     String response = await _apiService.fetchImplicitSkills(uid);
-  //     print(response);
-  //   }
-  // }
+  Future<void> _fetchSkills(String uid) async {
+    if (uid.isNotEmpty) {
+      String response = await _apiService.fetchImplicitSkills(uid);
+      print(response);
+    }
+  }
 
   String getExplicitSkills(List<String> skills) {
     String explicitySkills = '';
@@ -462,8 +462,9 @@ class _HandymanSignupGoogleState extends State<HandymanSignupGoogle> {
                                           ratingCount: 0,
                                           timestamp: now);
                                       //TODO
-                                      // await _fetchSkills(FirebaseAuth.instance.currentUser!.uid);
+                                      await _fetchSkills(FirebaseAuth.instance.currentUser!.uid);
                                       // await DialogUtils.buildShowDialog(context, title: 'Done, last step', content: 'Confirm email, email send to you', titleColor: Colors.green,);
+                                      
                                       Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(

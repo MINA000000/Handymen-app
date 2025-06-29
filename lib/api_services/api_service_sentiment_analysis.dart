@@ -20,51 +20,51 @@ class ApiServiceSentimentAnalysis {
 }
 
 
-void main()async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const MyApp());
-}
+// void main()async{
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp();
+//   runApp(const MyApp());
+// }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: UserScreen(),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: UserScreen(),
+//     );
+//   }
+// }
 
-class UserScreen extends StatefulWidget {
-  @override
-  _UserScreenState createState() => _UserScreenState();
-}
+// class UserScreen extends StatefulWidget {
+//   @override
+//   _UserScreenState createState() => _UserScreenState();
+// }
 
-class _UserScreenState extends State<UserScreen> {
-  ApiServiceSentimentAnalysis api = ApiServiceSentimentAnalysis();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("User Manager")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            ElevatedButton(onPressed: ()async{
-              try{
-                final receiveData = await api.sendReview("this was amazing thank you", "Xyufx2z7cCYkwHj3ftu8T2d9W6f1");
-                print(receiveData);
-              }
-              catch(e){
-                print("error here: $e");
-              }
-            }, child: Text('press'),),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// class _UserScreenState extends State<UserScreen> {
+//   ApiServiceSentimentAnalysis api = ApiServiceSentimentAnalysis();
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text("User Manager")),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           children: [
+//             ElevatedButton(onPressed: ()async{
+//               try{
+//                 final receiveData = await api.sendReview("this was amazing thank you", "Xyufx2z7cCYkwHj3ftu8T2d9W6f1");
+//                 print(receiveData);
+//               }
+//               catch(e){
+//                 print("error here: $e");
+//               }
+//             }, child: Text('press'),),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

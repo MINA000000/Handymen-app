@@ -30,63 +30,63 @@ class ApiServiceOpenai {
   }
 }
 
-// void main()async{
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp();
-//   runApp(MyApp());
-// }
+void main()async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
 
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       home: ApiTestScreen(),
-//     );
-//   }
-// }
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ApiTestScreen(),
+    );
+  }
+}
 
-// class ApiTestScreen extends StatefulWidget {
-//   @override
-//   _ApiTestScreenState createState() => _ApiTestScreenState();
-// }
+class ApiTestScreen extends StatefulWidget {
+  @override
+  _ApiTestScreenState createState() => _ApiTestScreenState();
+}
 
-// class _ApiTestScreenState extends State<ApiTestScreen> {
-//   final ApiServiceOpenai _apiService = ApiServiceOpenai();
-//   String _result = "";
+class _ApiTestScreenState extends State<ApiTestScreen> {
+  final ApiServiceOpenai _apiService = ApiServiceOpenai();
+  String _result = "";
 
-//   Future<void> _fetchSkills(String uid) async {
-//     if (uid.isNotEmpty) {
-//       String response = await _apiService.fetchImplicitSkills(uid);
-//       print(response);
-//       setState(() {
-//         _result = response;
-//       });
-//     }
-//   }
+  Future<void> _fetchSkills(String uid) async {
+    if (uid.isNotEmpty) {
+      String response = await _apiService.fetchImplicitSkills(uid);
+      print(response);
+      setState(() {
+        _result = response;
+      });
+    }
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text("API Service Test")),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: (){
-//                 _fetchSkills("KyEHIVDtbnNr073mxOdpRy3ng7a2");
-//               },
-//               child: Text("Fetch Implicit Skills"),
-//             ),
-//             SizedBox(height: 20),
-//             Text("Result:", style: TextStyle(fontWeight: FontWeight.bold)),
-//             SizedBox(height: 10),
-//             Text(_result),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("API Service Test")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: (){
+                _fetchSkills("KyEHIVDtbnNr073mxOdpRy3ng7a2");
+              },
+              child: Text("Fetch Implicit Skills"),
+            ),
+            SizedBox(height: 20),
+            Text("Result:", style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text(_result),
+          ],
+        ),
+      ),
+    );
+  }
+}

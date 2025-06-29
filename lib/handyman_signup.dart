@@ -33,7 +33,7 @@ class _HandymanSignUpState extends State<HandymanSignUp> {
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
   final TextEditingController _phoneNumber = TextEditingController();
-  // final ApiServiceOpenai _apiService = ApiServiceOpenai();
+  final ApiServiceOpenai _apiService = ApiServiceOpenai();
   BoolWrapper passvis1 = BoolWrapper(false);
   BoolWrapper passvis2 = BoolWrapper(false);
   bool isEqualPassword = true;
@@ -48,12 +48,12 @@ class _HandymanSignUpState extends State<HandymanSignUp> {
   Position? _position;
   bool firstSignUp = true;
 
-  // Future<void> _fetchSkills(String uid) async {
-  //   if (uid.isNotEmpty) {
-  //     String response = await _apiService.fetchImplicitSkills(uid);
-  //     print(response);
-  //   }
-  // }
+  Future<void> _fetchSkills(String uid) async {
+    if (uid.isNotEmpty) {
+      String response = await _apiService.fetchImplicitSkills(uid);
+      print(response);
+    }
+  }
   String getExplicitSkills(List<String> skills) {
     String explicitySkills = '';
     for (int i = 0; i < _selectedSkills.length; i++) {
@@ -554,7 +554,7 @@ class _HandymanSignUpState extends State<HandymanSignUp> {
                                           ratingCount: 0,
                                           timestamp: now);
 
-                                      // await _fetchSkills(FirebaseAuth.instance.currentUser!.uid);
+                                      await _fetchSkills(FirebaseAuth.instance.currentUser!.uid);
 
                                       await FirebaseAuth.instance.currentUser!
                                           .sendEmailVerification();
