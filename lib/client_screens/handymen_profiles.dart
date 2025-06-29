@@ -30,64 +30,41 @@ class _HanymenProfilesState extends State<HandymenProfiles> {
   List<Map<String, dynamic>> handymen = [];
   List<Map<String, dynamic>> filteredHandymen = [];
   List<String> handymenUID = [];
-  // ApiServiceRecommendation _apiService = ApiServiceRecommendation();
+  ApiServiceRecommendation _apiService = ApiServiceRecommendation();
   List<dynamic> recommendedHandymen = [];
   String errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _projectsCountController =
-      TextEditingController();
+  final TextEditingController _projectsCountController = TextEditingController();
   double? _selectedRating;
   GeoPoint? _clientLocation;
 
-  // Future<void> fetchRecommendations(String request, String category) async {
-  //   try {
-  //     final data = await _apiService.fetchRecommendations(request, category);
-  //     print(data); // Debugging: Print entire response
-  //
-  //     setState(() {
-  //       if (data['recommended_handymen'] is List) {
-  //         recommendedHandymen = data['recommended_handymen'];
-  //       } else {
-  //         recommendedHandymen = []; // Fallback if data isn't a list
-  //       }
-  //       errorMessage = '';
-  //     });
-  //   } catch (e) {
-  //     print("Error here: $e");
-  //   }
-  // }
+  Future<void> fetchRecommendations(String request, String category) async {
+    try {
+      final data = await _apiService.fetchRecommendations(request, category);
+      print(data); // Debugging: Print entire response
 
-  // Future<void> fetchHandymenData() async {
-  //   try {
-  //     await fetchRecommendations(widget.request, widget.categoryName);
-  //
-  //     for (var handymanId in recommendedHandymen) {
-  //       if (handymanId['id'] is! String) continue; // Skip if ID is not a string
-  //
-  //       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-  //           .collection(CollectionsNames.handymenInformation)
-  //           .doc(handymanId['id'])
-  //           .get();
-  //
-  //       if (documentSnapshot.exists) {
-  //         handymen.add(documentSnapshot.data() as Map<String, dynamic>);
-  //         handymenUID.add(handymanId['id']);
-  //       }
-  //     }
-  //
-  //     setState(() {
-  //       masterLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print("Error fetching data: $e");
-  //     setState(() {
-  //       masterLoading = false;
-  //     });
-  //   }
-  // }
+      setState(() {
+        if (data['recommended_handymen'] is List) {
+          recommendedHandymen = data['recommended_handymen'];
+        } else {
+          recommendedHandymen = []; // Fallback if data isn't a list
+        }
+        errorMessage = '';
+      });
+    } catch (e) {
+      print("Error fetching recommendations: $e");
+      setState(() {
+        errorMessage = 'Failed to load recommendations. Please try again.';
+      });
+    }
+  }
 
   Future<void> fetchHandymenData(String categoryName) async {
     try {
+      setState(() {
+        masterLoading = true;
+      });
+
       // Fetch client location
       final userAuth = FirebaseAuth.instance.currentUser;
       final clientDoc = await FirebaseFirestore.instance
@@ -103,21 +80,30 @@ class _HanymenProfilesState extends State<HandymenProfiles> {
         );
       }
 
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection(CollectionsNames.handymenInformation)
-          .where(HandymanFieldsName.category, isEqualTo: categoryName)
-          .get();
+      // Fetch recommended handymen sorted by recommendation system
+      await fetchRecommendations(widget.request, widget.categoryName);
 
       handymen.clear();
       handymenUID.clear();
       filteredHandymen.clear();
 
-      for (var doc in querySnapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>;
-        if (data.containsKey(HandymanFieldsName.latitude) &&
-            data.containsKey(HandymanFieldsName.longitude)) {
-          handymen.add(data);
-          handymenUID.add(doc.id);
+      // Fetch handyman data for recommended IDs
+      for (var handymanId in recommendedHandymen) {
+        if (handymanId['id'] is! String) continue; // Skip if ID is not a string
+
+        DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+            .collection(CollectionsNames.handymenInformation)
+            .doc(handymanId['id'])
+            .get();
+
+        if (documentSnapshot.exists) {
+          final data = documentSnapshot.data() as Map<String, dynamic>;
+          // Only include handymen with valid location fields
+          if (data.containsKey(HandymanFieldsName.latitude) &&
+              data.containsKey(HandymanFieldsName.longitude)) {
+            handymen.add(data);
+            handymenUID.add(documentSnapshot.id);
+          }
         }
       }
 
@@ -147,7 +133,7 @@ class _HanymenProfilesState extends State<HandymenProfiles> {
         masterLoading = false;
       });
     } catch (e) {
-      print("Error fetching handymen by category: $e");
+      print("Error fetching handymen: $e");
       setState(() {
         masterLoading = false;
         errorMessage = 'Failed to load handymen. Please try again.';
@@ -160,13 +146,153 @@ class _HanymenProfilesState extends State<HandymenProfiles> {
     final double dLat = (lat2 - lat1) * pi / 180;
     final double dLon = (lon2 - lon1) * pi / 180;
     final double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * pi / 180) *
-            cos(lat2 * pi / 180) *
-            sin(dLon / 2) *
-            sin(dLon / 2);
+        cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin(dLon / 2) * sin(dLon / 2);
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return earthRadius * c;
   }
+
+  // bool masterLoading = true;
+  // bool isLoadingFilter = false;
+  // List<Map<String, dynamic>> handymen = [];
+  // List<Map<String, dynamic>> filteredHandymen = [];
+  // List<String> handymenUID = [];
+  // ApiServiceRecommendation _apiService = ApiServiceRecommendation();
+  // List<dynamic> recommendedHandymen = [];
+  // String errorMessage = '';
+  // final TextEditingController _searchController = TextEditingController();
+  // final TextEditingController _projectsCountController =
+  //     TextEditingController();
+  // double? _selectedRating;
+  // GeoPoint? _clientLocation;
+
+  // Future<void> fetchRecommendations(String request, String category) async {
+  //   try {
+  //     final data = await _apiService.fetchRecommendations(request, category);
+  //     print(data); // Debugging: Print entire response
+  
+  //     setState(() {
+  //       if (data['recommended_handymen'] is List) {
+  //         recommendedHandymen = data['recommended_handymen'];
+  //       } else {
+  //         recommendedHandymen = []; // Fallback if data isn't a list
+  //       }
+  //       errorMessage = '';
+  //     });
+  //   } catch (e) {
+  //     print("Error here: $e");
+  //   }
+  // }
+
+  // Future<void> fetchHandymenData0() async {
+  //   try {
+  //     await fetchRecommendations(widget.request, widget.categoryName);
+  
+  //     for (var handymanId in recommendedHandymen) {
+  //       if (handymanId['id'] is! String) continue; // Skip if ID is not a string
+  
+  //       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+  //           .collection(CollectionsNames.handymenInformation)
+  //           .doc(handymanId['id'])
+  //           .get();
+  
+  //       if (documentSnapshot.exists) {
+  //         handymen.add(documentSnapshot.data() as Map<String, dynamic>);
+  //         handymenUID.add(handymanId['id']);
+  //       }
+  //     }
+  
+  //     setState(() {
+  //       masterLoading = false;
+  //     });
+  //   } catch (e) {
+  //     print("Error fetching data: $e");
+  //     setState(() {
+  //       masterLoading = false;
+  //     });
+  //   }
+  // }
+
+  // Future<void> fetchHandymenData(String categoryName) async {
+  //   try {
+  //     // Fetch client location
+  //     final userAuth = FirebaseAuth.instance.currentUser;
+  //     final clientDoc = await FirebaseFirestore.instance
+  //         .collection(CollectionsNames.clientsInformation)
+  //         .doc(userAuth!.uid)
+  //         .get();
+  //     if (clientDoc.exists &&
+  //         clientDoc.data()!.containsKey(ClientFieldsName.latitude) &&
+  //         clientDoc.data()!.containsKey(ClientFieldsName.longitude)) {
+  //       _clientLocation = GeoPoint(
+  //         clientDoc.data()![ClientFieldsName.latitude] as double,
+  //         clientDoc.data()![ClientFieldsName.longitude] as double,
+  //       );
+  //     }
+
+  //     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+  //         .collection(CollectionsNames.handymenInformation)
+  //         .where(HandymanFieldsName.category, isEqualTo: categoryName)
+  //         .get();
+
+  //     handymen.clear();
+  //     handymenUID.clear();
+  //     filteredHandymen.clear();
+
+  //     for (var doc in querySnapshot.docs) {
+  //       final data = doc.data() as Map<String, dynamic>;
+  //       if (data.containsKey(HandymanFieldsName.latitude) &&
+  //           data.containsKey(HandymanFieldsName.longitude)) {
+  //         handymen.add(data);
+  //         handymenUID.add(doc.id);
+  //       }
+  //     }
+
+  //     filteredHandymen = List.from(handymen);
+
+  //     // Sort by distance if client location is available
+  //     if (_clientLocation != null) {
+  //       filteredHandymen.sort((a, b) {
+  //         final double distanceA = calculateDistance(
+  //           _clientLocation!.latitude,
+  //           _clientLocation!.longitude,
+  //           a[HandymanFieldsName.latitude] as double,
+  //           a[HandymanFieldsName.longitude] as double,
+  //         );
+  //         final double distanceB = calculateDistance(
+  //           _clientLocation!.latitude,
+  //           _clientLocation!.longitude,
+  //           b[HandymanFieldsName.latitude] as double,
+  //           b[HandymanFieldsName.longitude] as double,
+  //         );
+  //         return distanceA.compareTo(distanceB);
+  //       });
+  //       filteredHandymen = filteredHandymen.take(10).toList();
+  //     }
+
+  //     setState(() {
+  //       masterLoading = false;
+  //     });
+  //   } catch (e) {
+  //     print("Error fetching handymen by category: $e");
+  //     setState(() {
+  //       masterLoading = false;
+  //       errorMessage = 'Failed to load handymen. Please try again.';
+  //     });
+  //   }
+  // }
+
+  // double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  //   const double earthRadius = 6371; // km
+  //   final double dLat = (lat2 - lat1) * pi / 180;
+  //   final double dLon = (lon2 - lon1) * pi / 180;
+  //   final double a = sin(dLat / 2) * sin(dLat / 2) +
+  //       cos(lat1 * pi / 180) *
+  //           cos(lat2 * pi / 180) *
+  //           sin(dLon / 2) *
+  //           sin(dLon / 2);
+  //   final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+  //   return earthRadius * c;
+  // }
 
   void _filterHandymen(String query) {
     setState(() {
