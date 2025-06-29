@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:grad_project/api_services/api_service_sentiment_analysis.dart';
 import 'package:grad_project/components/collections.dart';
 import 'package:grad_project/components/dialog_utils.dart';
 import 'package:grad_project/components/image_viewer_screen.dart';
@@ -145,7 +146,8 @@ class _DoneRequestClientState extends State<DoneRequestClient> {
           'rating_average': newAverage,
         });
       });
-
+      ApiServiceSentimentAnalysis api = ApiServiceSentimentAnalysis();
+      await api.sendReview(commentController.text, widget.request[RequestFieldsName.assignedHandyman]);
       Navigator.of(context).pop();
     } catch (e) {
       print('Error submitting comment: $e');
