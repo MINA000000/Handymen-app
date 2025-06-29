@@ -199,8 +199,8 @@ class _ClientProfileState extends State<ClientProfile> {
                                     ),
                                     child: CircleAvatar(
                                       radius: 60,
-                                      backgroundImage:
-                                          const AssetImage('assets/avatar.png'),
+                                      backgroundImage: const AssetImage(
+                                          'assets/person.avif'),
                                       backgroundColor:
                                           Color.fromRGBO(255, 255, 255, 0.95),
                                     ),

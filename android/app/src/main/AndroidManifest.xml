@@ -6,7 +6,7 @@
     <!-- (For Android 11+ if background location is needed) -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <application
-        android:label="Handymen"
+        android:label="HandyPro"
         android:name="${applicationName}"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher">
